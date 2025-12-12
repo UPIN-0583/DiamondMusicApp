@@ -22,7 +22,7 @@
 
 ```bash
 git clone <repository-url>
-cd MusicAppNew
+cd DiamondMusicApp
 ```
 
 ### 2. Cài đặt dependencies
@@ -276,12 +276,3 @@ Nếu gặp vấn đề:
 2. Chạy lại patch scripts
 3. Làm sạch build cache
 4. Kiểm tra log chi tiết với: `npm run android -- --verbose`
-
-## 📄 License
-
-MIT License
-
----
-
-**Phát triển bởi**: IE307 - Lập trình di động nâng cao
-**Phiên bản**: 0.0.1

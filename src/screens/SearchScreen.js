@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -12,11 +12,20 @@ import {usePlayerStore} from '../store/usePlayerStore';
 import TrackPlayer from 'react-native-track-player';
 import MiniPlayer from '../components/MiniPlayer';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import {useRoute} from '@react-navigation/native';
 
 const SearchScreen = ({navigation}) => {
+  const route = useRoute();
   const {trackList, setCurrentTrackIndex} = usePlayerStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('All');
+
+  // Receive initial query from voice search
+  useEffect(() => {
+    if (route.params?.initialQuery) {
+      setSearchQuery(route.params.initialQuery);
+    }
+  }, [route.params?.initialQuery]);
 
   const filters = ['All', 'Artist', 'Album', 'Playlist'];
 

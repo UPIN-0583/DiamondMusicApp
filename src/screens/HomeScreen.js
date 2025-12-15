@@ -24,6 +24,7 @@ import MiniPlayer from '../components/MiniPlayer';
 import SongItem from '../components/SongItem';
 import SongOptionsModal from '../components/SongOptionsModal';
 import PlaylistSelectModal from '../components/PlaylistSelectModal';
+import VoiceSearchModal from '../components/VoiceSearchModal';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import LinearGradient from 'react-native-linear-gradient';
 import SearchScreen from './SearchScreen';
@@ -45,6 +46,7 @@ const HomeScreen = ({navigation}) => {
   // Modal States
   const [optionsModalVisible, setOptionsModalVisible] = useState(false);
   const [playlistModalVisible, setPlaylistModalVisible] = useState(false);
+  const [voiceModalVisible, setVoiceModalVisible] = useState(false);
   const [selectedSong, setSelectedSong] = useState(null);
 
   useEffect(() => {
@@ -268,7 +270,9 @@ const HomeScreen = ({navigation}) => {
             onPress={() => navigation.getParent().navigate('AIChat')}>
             <Icon name="robot-happy" size={22} color="#fff" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.filterButton}>
+          <TouchableOpacity
+            style={styles.filterButton}
+            onPress={() => setVoiceModalVisible(true)}>
             <Icon name="microphone" size={22} color="#fff" />
           </TouchableOpacity>
         </View>
@@ -367,6 +371,15 @@ const HomeScreen = ({navigation}) => {
         onClose={() => setPlaylistModalVisible(false)}
         playlists={userPlaylists}
         onSelect={handleSelectPlaylist}
+      />
+
+      {/* Voice Search Modal */}
+      <VoiceSearchModal
+        visible={voiceModalVisible}
+        onClose={() => setVoiceModalVisible(false)}
+        onResult={text => {
+          navigation.getParent().navigate('SearchScreen', {initialQuery: text});
+        }}
       />
     </View>
   );

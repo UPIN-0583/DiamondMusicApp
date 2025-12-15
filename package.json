@@ -12,6 +12,7 @@
   "dependencies": {
     "@miblanchard/react-native-slider": "^2.6.0",
     "@react-native-async-storage/async-storage": "^2.2.0",
+    "@react-native-voice/voice": "^3.2.4",
     "@react-navigation/bottom-tabs": "^7.8.12",
     "@react-navigation/material-top-tabs": "^7.4.9",
     "@react-navigation/native": "^7.1.25",

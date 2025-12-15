@@ -20,60 +20,7 @@ const TopPlaylistsScreen = () => {
   const navigation = useNavigation();
   const {playlists: globalPlaylists} = useSelector(state => state.music);
 
-  // Use API data or fallback to mock
-  const playlists =
-    globalPlaylists.length > 0
-      ? globalPlaylists
-      : [
-          {
-            id: '1',
-            name: 'Bollywood Romance',
-            category: 'Bollywood Music',
-            image: 'https://picsum.photos/200/200?random=30',
-          },
-          {
-            id: '2',
-            name: 'New Music Daily',
-            category: 'Music Hits',
-            image: 'https://picsum.photos/200/200?random=31',
-          },
-          {
-            id: '3',
-            name: 'All Day Dance',
-            category: 'Music Dance',
-            image: 'https://picsum.photos/200/200?random=32',
-          },
-          {
-            id: '4',
-            name: 'New in Hip-Hop',
-            category: 'Hip-Hop Music',
-            image: 'https://picsum.photos/200/200?random=33',
-          },
-          {
-            id: '5',
-            name: 'Everyday Hits',
-            category: 'Music Hits',
-            image: 'https://picsum.photos/200/200?random=34',
-          },
-          {
-            id: '6',
-            name: 'Lofi Sunday',
-            category: 'Chill Music',
-            image: 'https://picsum.photos/200/200?random=35',
-          },
-          {
-            id: '7',
-            name: 'Workout Mix',
-            category: 'Fitness',
-            image: 'https://picsum.photos/200/200?random=36',
-          },
-          {
-            id: '8',
-            name: 'Study Vibes',
-            category: 'Focus Music',
-            image: 'https://picsum.photos/200/200?random=37',
-          },
-        ];
+  const playlists = globalPlaylists;
 
   const renderItem = ({item}) => (
     <TouchableOpacity

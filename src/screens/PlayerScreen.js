@@ -426,18 +426,6 @@ const PlayerScreen = () => {
                 <Text style={styles.sheetOptionSub}>Đến trang nghệ sĩ</Text>
               </View>
             </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.sheetOption}
-              onPress={() => setHeaderMenuVisible(false)}>
-              <View style={[styles.iconCircle, {backgroundColor: '#e3f2fd'}]}>
-                <Icon name="share-variant" size={22} color="#2196F3" />
-              </View>
-              <View style={styles.sheetOptionText}>
-                <Text style={styles.sheetOptionTitle}>Chia sẻ</Text>
-                <Text style={styles.sheetOptionSub}>Chia sẻ với bạn bè</Text>
-              </View>
-            </TouchableOpacity>
           </View>
         </TouchableOpacity>
       </Modal>

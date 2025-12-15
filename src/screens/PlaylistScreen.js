@@ -61,7 +61,7 @@ const PlaylistScreen = ({navigation}) => {
             name: item.name,
             category: `${item.songs ? item.songs.length : 0} Songs`,
             image:
-              item.cover_url ||
+              item.cover_image ||
               'https://via.placeholder.com/200x200.png?text=Playlist',
             songs: item.songs || [],
             isUserPlaylist: true,
@@ -71,7 +71,7 @@ const PlaylistScreen = ({navigation}) => {
       <Image
         source={{
           uri:
-            item.cover_url ||
+            item.cover_image ||
             'https://via.placeholder.com/200x200.png?text=Playlist',
         }}
         style={styles.playlistImage}

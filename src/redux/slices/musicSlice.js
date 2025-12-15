@@ -62,12 +62,14 @@ export const fetchPlaylists = createAsyncThunk(
   'music/fetchPlaylists',
   async (_, {rejectWithValue}) => {
     try {
+      const PLACEHOLDER_IMAGE =
+        'https://via.placeholder.com/400x400.png?text=Playlist';
       const response = await getGlobalPlaylists();
       if (response.success) {
         return response.playlists.map(playlist => ({
           id: playlist.playlist_id.toString(),
           name: playlist.name,
-          image: playlist.image_url,
+          image: playlist.image_url || PLACEHOLDER_IMAGE,
           category: playlist.description || 'Music',
         }));
       } else {

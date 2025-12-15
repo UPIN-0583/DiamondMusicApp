@@ -127,17 +127,6 @@ const SongOptionsModal = ({
               </View>
             </TouchableOpacity>
           )}
-
-          {/* Share */}
-          <TouchableOpacity style={styles.option} onPress={onShare || onClose}>
-            <View style={[styles.iconCircle, {backgroundColor: '#e3f2fd'}]}>
-              <Icon name="share-variant" size={22} color="#2196F3" />
-            </View>
-            <View style={styles.optionText}>
-              <Text style={styles.optionTitle}>Chia sẻ</Text>
-              <Text style={styles.optionSub}>Chia sẻ với bạn bè</Text>
-            </View>
-          </TouchableOpacity>
         </View>
       </TouchableOpacity>
     </Modal>

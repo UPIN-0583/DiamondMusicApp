@@ -80,7 +80,7 @@ const ArtistDetailScreen = () => {
             title: s.title,
             artist: s.artist_name || artist.name,
             artistId: artist.id,
-            artwork: s.artist_image || artist.image,
+            artwork: s.image_url || s.artist_image || artist.image,
             url: s.audio_url,
             duration: s.duration,
           }));

@@ -77,6 +77,28 @@ const PlaylistDetailScreen = () => {
   const [playlistData, setPlaylistData] = useState(initialPlaylist);
   const isUserPlaylist = playlistData.isUserPlaylist;
 
+  // Helper function to get playlist cover image with priority logic
+  const getPlaylistCoverImage = (playlist, songs) => {
+    const PLACEHOLDER = 'https://via.placeholder.com/400x400.png?text=Playlist';
+
+    // Priority 1: Custom image set by admin/user
+    if (playlist.image_url) {
+      return playlist.image_url;
+    }
+
+    // Priority 2: First song's image
+    if (songs && songs.length > 0) {
+      const firstSongImage =
+        songs[0].image || songs[0].image_url || songs[0].artwork;
+      if (firstSongImage) {
+        return firstSongImage;
+      }
+    }
+
+    // Priority 3: Placeholder
+    return PLACEHOLDER;
+  };
+
   // Load playlist songs
   useEffect(() => {
     const loadSongs = async () => {
@@ -98,7 +120,13 @@ const PlaylistDetailScreen = () => {
               song_id: s.song_id?.toString(),
             }));
             setPlaylistSongs(formatted);
-            setPlaylistData(prev => ({...prev, name: found.name}));
+            // Update playlist data with name and computed image
+            const computedImage = getPlaylistCoverImage(found, found.songs);
+            setPlaylistData(prev => ({
+              ...prev,
+              name: found.name,
+              image: computedImage,
+            }));
           } else if (playlistData.songs?.length > 0) {
             const formatted = playlistData.songs.map(s => ({
               id: s.id || s.song_id?.toString(),
@@ -114,6 +142,12 @@ const PlaylistDetailScreen = () => {
               song_id: s.id || s.song_id?.toString(),
             }));
             setPlaylistSongs(formatted);
+            // Update playlist image
+            const computedImage = getPlaylistCoverImage(
+              playlistData,
+              playlistData.songs,
+            );
+            setPlaylistData(prev => ({...prev, image: computedImage}));
           }
         } else {
           const response = await getGlobalPlaylistDetail(playlistData.id);
@@ -365,8 +399,8 @@ const PlaylistDetailScreen = () => {
       );
       if (response.success) {
         Alert.alert(
-          'Success',
-          `Saved "${newPlaylistName}" with ${response.addedSongs} songs!`,
+          'Thông báo',
+          `Lưu playlist "${newPlaylistName}" thành công với ${response.addedSongs} bài hát!`,
         );
         dispatch(fetchUserPlaylists(token));
       } else {

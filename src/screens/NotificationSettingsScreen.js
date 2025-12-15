@@ -21,7 +21,6 @@ const NotificationSettingsScreen = () => {
     newSongs: true,
     artistUpdates: true,
     playlistUpdates: true,
-    promotions: false,
   });
 
   useEffect(() => {
@@ -113,14 +112,6 @@ const NotificationSettingsScreen = () => {
           description="Thông báo khi playlist được cập nhật"
           value={settings.playlistUpdates}
           onToggle={() => toggleSetting('playlistUpdates')}
-        />
-
-        <SettingItem
-          icon="tag"
-          title="Khuyến mãi"
-          description="Nhận thông báo về ưu đãi và khuyến mãi"
-          value={settings.promotions}
-          onToggle={() => toggleSetting('promotions')}
         />
       </View>
 

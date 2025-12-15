@@ -154,6 +154,10 @@ const ArtistDetailScreen = () => {
         isLiked: isSongLiked,
       }),
     );
+    Alert.alert(
+      'Thành công',
+      isSongLiked ? 'Đã bỏ yêu thích bài hát' : 'Đã thêm vào yêu thích',
+    );
     setSongOptionsVisible(false);
   };
 

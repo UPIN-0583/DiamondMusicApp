@@ -196,3 +196,19 @@ export const getUserStats = async token => {
     headers: {token},
   });
 };
+
+// ============ AI RECOMMENDATION APIs ============
+export const getAIRecommendations = async message => {
+  return apiRequest('/ai/recommend', {
+    method: 'POST',
+    body: {message},
+  });
+};
+
+export const getAIGenres = async () => {
+  return apiRequest('/ai/genres');
+};
+
+export const getSongsByGenre = async genreName => {
+  return apiRequest(`/ai/songs/${encodeURIComponent(genreName)}`);
+};

@@ -229,7 +229,7 @@ const PlaylistDetailScreen = () => {
 
   const handleLikeSong = () => {
     if (!selectedSong || !token) {
-      Alert.alert('Info', 'Please login first');
+      Alert.alert('Thông báo', 'Vui lòng đăng nhập để thích bài hát');
       setSongOptionsVisible(false);
       return;
     }
@@ -239,6 +239,10 @@ const PlaylistDetailScreen = () => {
         songId: selectedSong.song_id,
         isLiked: isSongLiked,
       }),
+    );
+    Alert.alert(
+      'Thành công',
+      isSongLiked ? 'Đã bỏ yêu thích bài hát' : 'Đã thêm vào yêu thích',
     );
     setSongOptionsVisible(false);
   };
@@ -374,7 +378,7 @@ const PlaylistDetailScreen = () => {
   // Save Global Playlist to Library
   const handleOpenSavePlaylist = () => {
     if (!token) {
-      Alert.alert('Info', 'Please login first');
+      Alert.alert('Thông báo', 'Vui lòng đăng nhập');
       return;
     }
     if (playlistSongs.length === 0) {

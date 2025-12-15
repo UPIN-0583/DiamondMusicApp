@@ -84,7 +84,7 @@ const HomeScreen = ({navigation}) => {
 
   const handleLikeSong = () => {
     if (!selectedSong || !token) {
-      Alert.alert('Info', 'Please login to like songs');
+      Alert.alert('Thông báo', 'Vui lòng đăng nhập để thích bài hát');
       setOptionsModalVisible(false);
       return;
     }
@@ -95,13 +95,17 @@ const HomeScreen = ({navigation}) => {
         isLiked: isSongLiked,
       }),
     );
+    Alert.alert(
+      'Thành công',
+      isSongLiked ? 'Đã bỏ yêu thích bài hát' : 'Đã thêm vào yêu thích',
+    );
     setOptionsModalVisible(false);
   };
 
   const handleAddToPlaylistPrepare = () => {
     setOptionsModalVisible(false);
     if (!token) {
-      Alert.alert('Info', 'Please login first');
+      Alert.alert('Thông báo', 'Vui lòng đăng nhập');
       return;
     }
     if (userPlaylists.length === 0) dispatch(fetchUserPlaylists(token));
@@ -257,9 +261,12 @@ const HomeScreen = ({navigation}) => {
             style={styles.searchBar}
             onPress={() => navigation.getParent().navigate('SearchScreen')}>
             <Icon name="magnify" size={22} color="#999" />
-            <Text style={styles.searchPlaceholder}>
-              Tìm kiếm bài hát, nghệ sĩ...
-            </Text>
+            <Text style={styles.searchPlaceholder}>Tìm kiếm</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.aiButton}
+            onPress={() => navigation.getParent().navigate('AIChat')}>
+            <Icon name="robot-happy" size={22} color="#fff" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.filterButton}>
             <Icon name="microphone" size={22} color="#fff" />
@@ -388,6 +395,15 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     backgroundColor: '#2196F3',
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 8,
+  },
+  aiButton: {
+    width: 50,
+    height: 50,
+    backgroundColor: '#9C27B0',
     borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',

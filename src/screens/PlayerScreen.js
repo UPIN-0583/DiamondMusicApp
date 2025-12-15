@@ -160,6 +160,10 @@ const PlayerScreen = () => {
         isLiked,
       }),
     );
+    Alert.alert(
+      'Thành công',
+      isLiked ? 'Đã bỏ yêu thích bài hát' : 'Đã thêm vào yêu thích',
+    );
   };
 
   const handleAddToPlaylist = () => {

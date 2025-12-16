@@ -37,6 +37,8 @@ import SongItem from '../components/SongItem';
 import SongOptionsModal from '../components/SongOptionsModal';
 import PlaylistSelectModal from '../components/PlaylistSelectModal';
 import CreatePlaylistModal from '../components/CreatePlaylistModal';
+import MiniPlayer from '../components/MiniPlayer';
+import {useTheme} from '../themes/ThemeContext';
 
 const {width, height} = Dimensions.get('window');
 
@@ -44,11 +46,16 @@ const PlaylistDetailScreen = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const route = useRoute();
+  const {colors} = useTheme();
   const {setTrackList, setCurrentTrackIndex} = usePlayerStore();
   const dispatch = useDispatch();
 
   const {token, likedSongs} = useSelector(state => state.auth);
-  const {userPlaylists, songs: allSongs} = useSelector(state => state.music);
+  const {
+    userPlaylists,
+    songs: allSongs,
+    artists,
+  } = useSelector(state => state.music);
 
   const [playlistSongs, setPlaylistSongs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -279,8 +286,8 @@ const PlaylistDetailScreen = () => {
       addSongToPlaylistThunk({token, playlistId, songId: selectedSong.song_id}),
     )
       .unwrap()
-      .then(() => Alert.alert('Success', 'Added to playlist'))
-      .catch(err => Alert.alert('Error', err));
+      .then(() => Alert.alert('Thành công', 'Đã thêm vào playlist'))
+      .catch(err => Alert.alert('Lỗi', err));
     setPlaylistSelectVisible(false);
   };
 
@@ -288,11 +295,15 @@ const PlaylistDetailScreen = () => {
     setSongOptionsVisible(false);
     const artistId = selectedSong?.artistId || selectedSong?.artist_id;
     if (artistId) {
+      // Tìm ảnh nghệ sĩ đúng từ danh sách artists
+      const artistData = artists.find(
+        a => a.id?.toString() === artistId?.toString(),
+      );
       navigation.navigate('ArtistDetail', {
         artist: {
           id: artistId,
           name: selectedSong.artist,
-          image: selectedSong.artwork,
+          image: artistData?.image || selectedSong.artwork,
         },
       });
     } else {
@@ -467,13 +478,22 @@ const PlaylistDetailScreen = () => {
         </LinearGradient>
       </View>
       <View style={styles.actionButtons}>
-        <TouchableOpacity style={styles.playButton} onPress={handlePlayAll}>
+        <TouchableOpacity
+          style={[styles.playButton, {backgroundColor: colors.primary}]}
+          onPress={handlePlayAll}>
           <Icon name="play" size={22} color="#fff" />
           <Text style={styles.playButtonText}>Phát</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.shuffleButton} onPress={handleShuffle}>
-          <Icon name="shuffle-variant" size={22} color="#333" />
-          <Text style={styles.shuffleButtonText}>Shuffle</Text>
+        <TouchableOpacity
+          style={[
+            styles.shuffleButton,
+            {backgroundColor: colors.surfaceVariant},
+          ]}
+          onPress={handleShuffle}>
+          <Icon name="shuffle-variant" size={22} color={colors.text} />
+          <Text style={[styles.shuffleButtonText, {color: colors.text}]}>
+            Shuffle
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -494,7 +514,7 @@ const PlaylistDetailScreen = () => {
     );
     return (
       <TouchableOpacity
-        style={styles.addSongItem}
+        style={[styles.addSongItem, {borderBottomColor: colors.border}]}
         onPress={() =>
           isAdded
             ? handleRemoveSongFromModal(item)
@@ -502,15 +522,26 @@ const PlaylistDetailScreen = () => {
         }>
         <Image source={{uri: item.artwork}} style={styles.addSongImage} />
         <View style={{flex: 1, marginLeft: 15}}>
-          <Text style={styles.addSongTitle} numberOfLines={1}>
+          <Text
+            style={[styles.addSongTitle, {color: colors.text}]}
+            numberOfLines={1}>
             {item.title}
           </Text>
-          <Text style={styles.addSongArtist} numberOfLines={1}>
+          <Text
+            style={[styles.addSongArtist, {color: colors.textSecondary}]}
+            numberOfLines={1}>
             {item.artist}
           </Text>
         </View>
         <TouchableOpacity
-          style={[styles.addRemoveButton, isAdded && styles.addedButton]}
+          style={[
+            styles.addRemoveButton,
+            {borderColor: colors.primary},
+            isAdded && {
+              backgroundColor: colors.primary,
+              borderColor: colors.primary,
+            },
+          ]}
           onPress={() =>
             isAdded
               ? handleRemoveSongFromModal(item)
@@ -519,7 +550,7 @@ const PlaylistDetailScreen = () => {
           <Icon
             name={isAdded ? 'check' : 'plus'}
             size={20}
-            color={isAdded ? '#fff' : '#2196F3'}
+            color={isAdded ? '#fff' : colors.primary}
           />
         </TouchableOpacity>
       </TouchableOpacity>
@@ -528,14 +559,18 @@ const PlaylistDetailScreen = () => {
 
   if (isLoading) {
     return (
-      <View style={[styles.container, {justifyContent: 'center'}]}>
-        <ActivityIndicator size="large" color="#2196F3" />
+      <View
+        style={[
+          styles.container,
+          {justifyContent: 'center', backgroundColor: colors.background},
+        ]}>
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: colors.background}]}>
       <StatusBar
         translucent
         backgroundColor="transparent"
@@ -550,8 +585,8 @@ const PlaylistDetailScreen = () => {
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={styles.emptyState}>
-            <Icon name="music-note-off" size={60} color="#ddd" />
-            <Text style={styles.emptyText}>
+            <Icon name="music-note-off" size={60} color={colors.textTertiary} />
+            <Text style={[styles.emptyText, {color: colors.textSecondary}]}>
               Không có bài hát trong playlist
             </Text>
             {isUserPlaylist && (
@@ -610,9 +645,13 @@ const PlaylistDetailScreen = () => {
           style={styles.bottomSheetOverlay}
           activeOpacity={1}
           onPress={() => setPlaylistMenuVisible(false)}>
-          <View style={styles.bottomSheet}>
-            <View style={styles.dragHandle} />
-            <Text style={styles.sheetTitle}>{playlistData.name}</Text>
+          <View style={[styles.bottomSheet, {backgroundColor: colors.card}]}>
+            <View
+              style={[styles.dragHandle, {backgroundColor: colors.border}]}
+            />
+            <Text style={[styles.sheetTitle, {color: colors.text}]}>
+              {playlistData.name}
+            </Text>
             <TouchableOpacity
               style={styles.sheetOption}
               onPress={() => {
@@ -620,18 +659,28 @@ const PlaylistDetailScreen = () => {
                 setNewName(playlistData.name);
                 setRenameModalVisible(true);
               }}>
-              <View style={[styles.iconCircle, {backgroundColor: '#e3f2fd'}]}>
-                <Icon name="pencil" size={22} color="#2196F3" />
+              <View
+                style={[
+                  styles.iconCircle,
+                  {backgroundColor: colors.primaryLight},
+                ]}>
+                <Icon name="pencil" size={22} color={colors.primary} />
               </View>
-              <Text style={styles.sheetOptionTitle}>Đổi tên playlist</Text>
+              <Text style={[styles.sheetOptionTitle, {color: colors.text}]}>
+                Đổi tên playlist
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.sheetOption}
               onPress={handleDeletePlaylist}>
-              <View style={[styles.iconCircle, {backgroundColor: '#ffebee'}]}>
-                <Icon name="delete" size={22} color="#ff4757" />
+              <View
+                style={[
+                  styles.iconCircle,
+                  {backgroundColor: colors.error + '20'},
+                ]}>
+                <Icon name="delete" size={22} color={colors.error} />
               </View>
-              <Text style={[styles.sheetOptionTitle, {color: '#ff4757'}]}>
+              <Text style={[styles.sheetOptionTitle, {color: colors.error}]}>
                 Xóa playlist
               </Text>
             </TouchableOpacity>
@@ -658,7 +707,11 @@ const PlaylistDetailScreen = () => {
         visible={addSongModalVisible}
         animationType="slide"
         onRequestClose={() => setAddSongModalVisible(false)}>
-        <View style={styles.fullScreenModal}>
+        <View
+          style={[
+            styles.fullScreenModal,
+            {backgroundColor: colors.background},
+          ]}>
           <View
             style={[styles.fullScreenHeader, {paddingTop: insets.top + 10}]}>
             <TouchableOpacity
@@ -668,23 +721,33 @@ const PlaylistDetailScreen = () => {
                 if (token) dispatch(fetchUserPlaylists(token));
               }}
               style={styles.closeBtn}>
-              <Icon name="close" size={26} color="#333" />
+              <Icon name="close" size={26} color={colors.text} />
             </TouchableOpacity>
-            <Text style={styles.fullScreenTitle}>Thêm bài hát</Text>
+            <Text style={[styles.fullScreenTitle, {color: colors.text}]}>
+              Thêm bài hát
+            </Text>
             <View style={{width: 40}} />
           </View>
-          <View style={styles.searchBar}>
-            <Icon name="magnify" size={22} color="#888" />
+          <View
+            style={[
+              styles.searchBar,
+              {backgroundColor: colors.inputBackground},
+            ]}>
+            <Icon name="magnify" size={22} color={colors.placeholder} />
             <TextInput
-              style={styles.searchInput}
+              style={[styles.searchInput, {color: colors.text}]}
               placeholder="Tìm kiếm bài hát..."
-              placeholderTextColor="#aaa"
+              placeholderTextColor={colors.placeholder}
               value={searchQuery}
               onChangeText={setSearchQuery}
             />
             {searchQuery.length > 0 && (
               <TouchableOpacity onPress={() => setSearchQuery('')}>
-                <Icon name="close-circle" size={20} color="#888" />
+                <Icon
+                  name="close-circle"
+                  size={20}
+                  color={colors.placeholder}
+                />
               </TouchableOpacity>
             )}
           </View>
@@ -702,6 +765,8 @@ const PlaylistDetailScreen = () => {
           />
         </View>
       </Modal>
+
+      <MiniPlayer />
     </View>
   );
 };

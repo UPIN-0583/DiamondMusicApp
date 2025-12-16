@@ -18,18 +18,21 @@ import SongItem from '../components/SongItem';
 import SongOptionsModal from '../components/SongOptionsModal';
 import CreatePlaylistModal from '../components/CreatePlaylistModal';
 import PlaylistSelectModal from '../components/PlaylistSelectModal';
+import MiniPlayer from '../components/MiniPlayer';
 import {
   fetchUserPlaylists,
   addSongToPlaylistThunk,
 } from '../redux/slices/musicSlice';
 import {toggleLikeSong} from '../redux/slices/authSlice';
 import {createPlaylistWithSongs} from '../services/api';
+import {useTheme} from '../themes/ThemeContext';
 
 const RecommendedSongsScreen = ({navigation, route}) => {
   const {songs = [], genres = []} = route.params || {};
   const dispatch = useDispatch();
+  const {colors} = useTheme();
   const {token, likedSongs} = useSelector(state => state.auth);
-  const {userPlaylists} = useSelector(state => state.music);
+  const {userPlaylists, artists} = useSelector(state => state.music);
 
   // Modal states
   const [optionsModalVisible, setOptionsModalVisible] = useState(false);
@@ -153,11 +156,15 @@ const RecommendedSongsScreen = ({navigation, route}) => {
   const handleViewArtist = () => {
     if (!selectedSong) return;
     setOptionsModalVisible(false);
+    // Tìm ảnh nghệ sĩ đúng từ danh sách artists
+    const artistData = artists.find(
+      a => a.id?.toString() === selectedSong.artistId?.toString(),
+    );
     navigation.navigate('ArtistDetail', {
       artist: {
         id: selectedSong.artistId,
         name: selectedSong.artist,
-        image: selectedSong.artwork,
+        image: artistData?.image || selectedSong.artwork,
       },
     });
   };
@@ -208,10 +215,11 @@ const RecommendedSongsScreen = ({navigation, route}) => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, {backgroundColor: colors.background}]}>
       {/* Header */}
       <LinearGradient
-        colors={['#2196F3', '#1976D2']}
+        colors={[colors.primary, colors.primaryDark || colors.primary]}
         style={styles.header}
         start={{x: 0, y: 0}}
         end={{x: 1, y: 1}}>
@@ -229,17 +237,25 @@ const RecommendedSongsScreen = ({navigation, route}) => {
       </LinearGradient>
 
       {/* Action buttons */}
-      <View style={styles.actionsContainer}>
-        <TouchableOpacity style={styles.playAllBtn} onPress={handlePlayAll}>
+      <View
+        style={[
+          styles.actionsContainer,
+          {backgroundColor: colors.card, borderBottomColor: colors.border},
+        ]}>
+        <TouchableOpacity
+          style={[styles.playAllBtn, {backgroundColor: colors.primary}]}
+          onPress={handlePlayAll}>
           <Icon name="play" size={22} color="#fff" />
           <Text style={styles.playAllText}>Phát tất cả</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.createPlaylistBtn}
+          style={[styles.createPlaylistBtn, {borderColor: colors.primary}]}
           onPress={handleCreatePlaylistFromAll}>
-          <Icon name="playlist-plus" size={22} color="#2196F3" />
-          <Text style={styles.createPlaylistText}>Tạo playlist</Text>
+          <Icon name="playlist-plus" size={22} color={colors.primary} />
+          <Text style={[styles.createPlaylistText, {color: colors.primary}]}>
+            Tạo playlist
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -286,6 +302,8 @@ const RecommendedSongsScreen = ({navigation, route}) => {
         buttonText="Tạo playlist"
         iconName="playlist-star"
       />
+
+      <MiniPlayer />
     </SafeAreaView>
   );
 };

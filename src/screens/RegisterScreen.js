@@ -16,6 +16,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useDispatch, useSelector} from 'react-redux';
 import {registerUser} from '../redux/slices/authSlice';
+import {useTheme} from '../themes/ThemeContext';
 
 const RegisterScreen = ({navigation}) => {
   const [username, setUsername] = useState('');
@@ -26,6 +27,7 @@ const RegisterScreen = ({navigation}) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const dispatch = useDispatch();
+  const {colors} = useTheme();
   const {isLoading} = useSelector(state => state.auth);
 
   const handleRegister = async () => {
@@ -57,7 +59,8 @@ const RegisterScreen = ({navigation}) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, {backgroundColor: colors.background}]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}>
@@ -66,24 +69,40 @@ const RegisterScreen = ({navigation}) => {
           showsVerticalScrollIndicator={false}>
           {/* Logo */}
           <View style={styles.logoContainer}>
-            <View style={styles.logoWrapper}>
-              <Icon name="music-note" size={50} color="#2196F3" />
+            <View
+              style={[
+                styles.logoWrapper,
+                {backgroundColor: colors.primaryLight},
+              ]}>
+              <Image
+                source={require('../assets/LOGO_APP.png')}
+                style={styles.logo}
+              />
             </View>
           </View>
 
           {/* Title */}
-          <Text style={styles.title}>Tạo tài khoản mới</Text>
-          <Text style={styles.subtitle}>
+          <Text style={[styles.title, {color: colors.text}]}>
+            Tạo tài khoản mới
+          </Text>
+          <Text style={[styles.subtitle, {color: colors.textSecondary}]}>
             Thiết lập tên người dùng và mật khẩu.{'\n'}
             Bạn có thể thay đổi sau.
           </Text>
 
           {/* Username Input */}
-          <View style={styles.inputContainer}>
+          <View
+            style={[
+              styles.inputContainer,
+              {
+                backgroundColor: colors.inputBackground,
+                borderColor: colors.border,
+              },
+            ]}>
             <TextInput
-              style={styles.input}
+              style={[styles.input, {color: colors.text}]}
               placeholder="Tên người dùng"
-              placeholderTextColor="#999"
+              placeholderTextColor={colors.placeholder}
               value={username}
               onChangeText={setUsername}
               autoCapitalize="none"
@@ -91,11 +110,18 @@ const RegisterScreen = ({navigation}) => {
           </View>
 
           {/* Email Input */}
-          <View style={styles.inputContainer}>
+          <View
+            style={[
+              styles.inputContainer,
+              {
+                backgroundColor: colors.inputBackground,
+                borderColor: colors.border,
+              },
+            ]}>
             <TextInput
-              style={styles.input}
+              style={[styles.input, {color: colors.text}]}
               placeholder="Địa chỉ Email"
-              placeholderTextColor="#999"
+              placeholderTextColor={colors.placeholder}
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -104,11 +130,18 @@ const RegisterScreen = ({navigation}) => {
           </View>
 
           {/* Password Input */}
-          <View style={styles.inputContainer}>
+          <View
+            style={[
+              styles.inputContainer,
+              {
+                backgroundColor: colors.inputBackground,
+                borderColor: colors.border,
+              },
+            ]}>
             <TextInput
-              style={styles.input}
+              style={[styles.input, {color: colors.text}]}
               placeholder="Mật khẩu"
-              placeholderTextColor="#999"
+              placeholderTextColor={colors.placeholder}
               value={password}
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
@@ -119,17 +152,24 @@ const RegisterScreen = ({navigation}) => {
               <Icon
                 name={showPassword ? 'eye' : 'eye-off'}
                 size={22}
-                color="#999"
+                color={colors.placeholder}
               />
             </TouchableOpacity>
           </View>
 
           {/* Confirm Password Input */}
-          <View style={styles.inputContainer}>
+          <View
+            style={[
+              styles.inputContainer,
+              {
+                backgroundColor: colors.inputBackground,
+                borderColor: colors.border,
+              },
+            ]}>
             <TextInput
-              style={styles.input}
+              style={[styles.input, {color: colors.text}]}
               placeholder="Xác nhận mật khẩu"
-              placeholderTextColor="#999"
+              placeholderTextColor={colors.placeholder}
               value={confirmPassword}
               onChangeText={setConfirmPassword}
               secureTextEntry={!showConfirmPassword}
@@ -140,14 +180,14 @@ const RegisterScreen = ({navigation}) => {
               <Icon
                 name={showConfirmPassword ? 'eye' : 'eye-off'}
                 size={22}
-                color="#999"
+                color={colors.placeholder}
               />
             </TouchableOpacity>
           </View>
 
           {/* Signup Button */}
           <TouchableOpacity
-            style={styles.signupButton}
+            style={[styles.signupButton, {backgroundColor: colors.primary}]}
             onPress={handleRegister}
             disabled={isLoading}>
             {isLoading ? (
@@ -159,9 +199,13 @@ const RegisterScreen = ({navigation}) => {
 
           {/* Login Link */}
           <View style={styles.loginContainer}>
-            <Text style={styles.loginText}>Đã có tài khoản? </Text>
+            <Text style={[styles.loginText, {color: colors.textSecondary}]}>
+              Đã có tài khoản?{' '}
+            </Text>
             <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-              <Text style={styles.loginLink}>Đăng nhập</Text>
+              <Text style={[styles.loginLink, {color: colors.primary}]}>
+                Đăng nhập
+              </Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -186,6 +230,10 @@ const styles = StyleSheet.create({
   logoContainer: {
     alignItems: 'center',
     marginBottom: 30,
+  },
+  logo: {
+    width: 80,
+    height: 80,
   },
   logoWrapper: {
     width: 80,

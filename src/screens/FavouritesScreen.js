@@ -29,10 +29,12 @@ import {
   fetchUserPlaylists,
   addSongToPlaylistThunk,
 } from '../redux/slices/musicSlice';
+import {useTheme} from '../themes/ThemeContext';
 
 const FavouritesScreen = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const {colors} = useTheme();
   const {setTrackList, setCurrentTrackIndex} = usePlayerStore();
   const {token, likedSongs, likedArtists} = useSelector(state => state.auth);
   const {userPlaylists} = useSelector(state => state.music);
@@ -164,30 +166,37 @@ const FavouritesScreen = () => {
         source={{uri: item.image || 'https://picsum.photos/100/100'}}
         style={styles.artistImage}
       />
-      <Text style={styles.artistName} numberOfLines={1}>
+      <Text style={[styles.artistName, {color: colors.text}]} numberOfLines={1}>
         {item.name}
       </Text>
       <TouchableOpacity
         style={styles.unfollowButton}
         onPress={() => handleUnfollow(item)}>
-        <Icon name="account-check" size={20} color="#2196F3" />
+        <Icon name="account-check" size={20} color={colors.primary} />
       </TouchableOpacity>
     </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView
+      style={[styles.container, {backgroundColor: colors.background}]}
+      edges={['top']}>
       {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Yêu thích</Text>
+      <View style={[styles.header, {borderBottomColor: colors.border}]}>
+        <Text style={[styles.headerTitle, {color: colors.text}]}>
+          Yêu thích
+        </Text>
       </View>
 
       {/* Tab Buttons */}
-      <View style={styles.tabContainer}>
+      <View style={[styles.tabContainer, {backgroundColor: colors.background}]}>
         <TouchableOpacity
           style={[
             styles.tabButton,
-            activeTab === 'songs' && styles.tabButtonActive,
+            {
+              backgroundColor:
+                activeTab === 'songs' ? colors.primary : 'transparent',
+            },
           ]}
           onPress={() => {
             setActiveTab('songs');
@@ -196,12 +205,12 @@ const FavouritesScreen = () => {
           <Icon
             name="music-note"
             size={20}
-            color={activeTab === 'songs' ? '#fff' : '#666'}
+            color={activeTab === 'songs' ? '#fff' : colors.textSecondary}
           />
           <Text
             style={[
               styles.tabText,
-              activeTab === 'songs' && styles.tabTextActive,
+              {color: activeTab === 'songs' ? '#fff' : colors.textSecondary},
             ]}>
             Bài hát
           </Text>
@@ -209,7 +218,10 @@ const FavouritesScreen = () => {
         <TouchableOpacity
           style={[
             styles.tabButton,
-            activeTab === 'artists' && styles.tabButtonActive,
+            {
+              backgroundColor:
+                activeTab === 'artists' ? colors.primary : 'transparent',
+            },
           ]}
           onPress={() => {
             setActiveTab('artists');
@@ -218,12 +230,12 @@ const FavouritesScreen = () => {
           <Icon
             name="account-music"
             size={20}
-            color={activeTab === 'artists' ? '#fff' : '#666'}
+            color={activeTab === 'artists' ? '#fff' : colors.textSecondary}
           />
           <Text
             style={[
               styles.tabText,
-              activeTab === 'artists' && styles.tabTextActive,
+              {color: activeTab === 'artists' ? '#fff' : colors.textSecondary},
             ]}>
             Nghệ sĩ
           </Text>
@@ -231,20 +243,24 @@ const FavouritesScreen = () => {
       </View>
 
       {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <Icon name="magnify" size={20} color="#888" />
+      <View
+        style={[
+          styles.searchContainer,
+          {backgroundColor: colors.inputBackground},
+        ]}>
+        <Icon name="magnify" size={20} color={colors.textSecondary} />
         <TextInput
           style={styles.searchInput}
           placeholder={
             activeTab === 'songs' ? 'Tìm bài hát...' : 'Tìm nghệ sĩ...'
           }
-          placeholderTextColor="#aaa"
+          placeholderTextColor={colors.textSecondary}
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
         {searchQuery.length > 0 && (
           <TouchableOpacity onPress={() => setSearchQuery('')}>
-            <Icon name="close-circle" size={18} color="#888" />
+            <Icon name="close-circle" size={18} color={colors.textSecondary} />
           </TouchableOpacity>
         )}
       </View>
@@ -258,8 +274,12 @@ const FavouritesScreen = () => {
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Icon name="heart-outline" size={60} color="#ddd" />
-              <Text style={styles.emptyText}>
+              <Icon
+                name="heart-outline"
+                size={60}
+                color={colors.textTertiary}
+              />
+              <Text style={[styles.emptyText, {color: colors.textSecondary}]}>
                 {searchQuery ? 'Không tìm thấy' : 'Chưa có bài hát yêu thích'}
               </Text>
             </View>
@@ -273,8 +293,12 @@ const FavouritesScreen = () => {
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Icon name="account-music-outline" size={60} color="#ddd" />
-              <Text style={styles.emptyText}>
+              <Icon
+                name="account-music-outline"
+                size={60}
+                color={colors.textTertiary}
+              />
+              <Text style={[styles.emptyText, {color: colors.textSecondary}]}>
                 {searchQuery ? 'Không tìm thấy' : 'Chưa theo dõi nghệ sĩ nào'}
               </Text>
             </View>

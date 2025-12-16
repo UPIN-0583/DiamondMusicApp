@@ -29,6 +29,7 @@ import {
   addSongToPlaylistThunk,
 } from '../redux/slices/musicSlice';
 import PlaylistSelectModal from '../components/PlaylistSelectModal';
+import {useTheme} from '../themes/ThemeContext';
 
 const {width, height} = Dimensions.get('window');
 
@@ -46,10 +47,11 @@ const REPEAT_LABELS = ['Tất lặp lại', 'Lặp lại playlist', 'Lặp lại
 const PlayerScreen = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const {colors} = useTheme();
   const {trackList, currentTrackIndex, setTrackList} = usePlayerStore();
 
   const {token, likedSongs} = useSelector(state => state.auth);
-  const {userPlaylists} = useSelector(state => state.music);
+  const {userPlaylists, artists} = useSelector(state => state.music);
 
   const [trackTitle, setTrackTitle] = useState('');
   const [trackArtist, setTrackArtist] = useState('');
@@ -192,11 +194,15 @@ const PlayerScreen = () => {
   const handleViewArtist = () => {
     setHeaderMenuVisible(false);
     if (currentTrack?.artistId) {
+      // Tìm ảnh nghệ sĩ đúng từ danh sách artists
+      const artistData = artists.find(
+        a => a.id?.toString() === currentTrack.artistId?.toString(),
+      );
       navigation.navigate('ArtistDetail', {
         artist: {
           id: currentTrack.artistId,
           name: trackArtist,
-          image: trackArtwork,
+          image: artistData?.image || currentTrack.artistImage || trackArtwork,
         },
       });
     } else {
@@ -211,10 +217,12 @@ const PlayerScreen = () => {
   const getRepeatIcon = () => (repeatMode === 2 ? 'repeat-once' : 'repeat');
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView
+      style={[styles.container, {backgroundColor: colors.background}]}
+      edges={['top']}>
       <StatusBar
-        barStyle="dark-content"
-        backgroundColor="#fff"
+        barStyle={colors.statusBar}
+        backgroundColor={colors.background}
         translucent={false}
       />
 
@@ -223,12 +231,12 @@ const PlayerScreen = () => {
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.headerButton}>
-          <Icon name="chevron-down" size={28} color="#333" />
+          <Icon name="chevron-down" size={28} color={colors.text} />
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.headerButton}
           onPress={() => setHeaderMenuVisible(true)}>
-          <Icon name="dots-horizontal" size={24} color="#333" />
+          <Icon name="dots-horizontal" size={24} color={colors.text} />
         </TouchableOpacity>
       </View>
 
@@ -237,8 +245,13 @@ const PlayerScreen = () => {
         {trackArtwork ? (
           <Image source={{uri: trackArtwork}} style={styles.artwork} />
         ) : (
-          <View style={[styles.artwork, styles.artworkPlaceholder]}>
-            <Icon name="music" size={80} color="#ccc" />
+          <View
+            style={[
+              styles.artwork,
+              styles.artworkPlaceholder,
+              {backgroundColor: colors.surfaceVariant},
+            ]}>
+            <Icon name="music" size={80} color={colors.textTertiary} />
           </View>
         )}
       </View>
@@ -249,19 +262,23 @@ const PlayerScreen = () => {
           <Icon
             name={isLiked ? 'heart' : 'heart-outline'}
             size={26}
-            color={isLiked ? '#ff4757' : '#333'}
+            color={isLiked ? '#ff4757' : colors.textSecondary}
           />
         </TouchableOpacity>
         <View style={styles.songTextContainer}>
-          <Text style={styles.songTitle} numberOfLines={1}>
+          <Text
+            style={[styles.songTitle, {color: colors.text}]}
+            numberOfLines={1}>
             {trackTitle || 'No Track'}
           </Text>
-          <Text style={styles.songArtist} numberOfLines={1}>
+          <Text
+            style={[styles.songArtist, {color: colors.textSecondary}]}
+            numberOfLines={1}>
             {trackArtist || 'Unknown Artist'}
           </Text>
         </View>
         <TouchableOpacity onPress={() => setSpeedModalVisible(true)}>
-          <Icon name="speedometer" size={24} color="#333" />
+          <Icon name="speedometer" size={24} color={colors.textSecondary} />
         </TouchableOpacity>
       </View>
 
@@ -271,19 +288,21 @@ const PlayerScreen = () => {
           value={progress.position}
           minimumValue={0}
           maximumValue={progress.duration || 1}
-          thumbTintColor="#2196F3"
-          minimumTrackTintColor="#2196F3"
-          maximumTrackTintColor="#e0e0e0"
+          thumbTintColor={colors.primary}
+          minimumTrackTintColor={colors.primary}
+          maximumTrackTintColor={colors.border}
           thumbStyle={styles.thumbStyle}
           trackStyle={styles.trackStyle}
           onSlidingComplete={async v => await TrackPlayer.seekTo(v[0])}
         />
         <View style={styles.timeContainer}>
-          <Text style={styles.timeText}>{formatTime(progress.position)}</Text>
-          <Text style={styles.speedIndicator}>
+          <Text style={[styles.timeText, {color: colors.textSecondary}]}>
+            {formatTime(progress.position)}
+          </Text>
+          <Text style={[styles.speedIndicator, {color: colors.primary}]}>
             {playbackSpeed !== 1 ? `${playbackSpeed}x` : ''}
           </Text>
-          <Text style={styles.timeText}>
+          <Text style={[styles.timeText, {color: colors.textSecondary}]}>
             {formatTime(progress.duration || 0)}
           </Text>
         </View>
@@ -295,17 +314,19 @@ const PlayerScreen = () => {
           <Icon
             name="shuffle-variant"
             size={24}
-            color={isShuffle ? '#2196F3' : '#666'}
+            color={isShuffle ? colors.primary : colors.textSecondary}
           />
         </TouchableOpacity>
         <TouchableOpacity onPress={skipToPrevious} style={styles.controlButton}>
-          <Icon name="skip-previous" size={35} color="#333" />
+          <Icon name="skip-previous" size={35} color={colors.text} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={togglePlayback} style={styles.playButton}>
+        <TouchableOpacity
+          onPress={togglePlayback}
+          style={[styles.playButton, {backgroundColor: colors.primary}]}>
           <Icon name={isPlaying ? 'pause' : 'play'} size={35} color="#fff" />
         </TouchableOpacity>
         <TouchableOpacity onPress={skipToNext} style={styles.controlButton}>
-          <Icon name="skip-next" size={35} color="#333" />
+          <Icon name="skip-next" size={35} color={colors.text} />
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
@@ -317,7 +338,7 @@ const PlayerScreen = () => {
           <Icon
             name={getRepeatIcon()}
             size={24}
-            color={repeatMode > 0 ? '#2196F3' : '#666'}
+            color={repeatMode > 0 ? colors.primary : colors.textSecondary}
           />
         </TouchableOpacity>
       </View>
@@ -332,15 +353,21 @@ const PlayerScreen = () => {
           style={styles.bottomSheetOverlay}
           activeOpacity={1}
           onPress={() => setSpeedModalVisible(false)}>
-          <View style={styles.bottomSheet}>
-            <View style={styles.dragHandle} />
-            <Text style={styles.sheetTitle}>Tốc độ phát</Text>
+          <View style={[styles.bottomSheet, {backgroundColor: colors.card}]}>
+            <View
+              style={[styles.dragHandle, {backgroundColor: colors.border}]}
+            />
+            <Text style={[styles.sheetTitle, {color: colors.text}]}>
+              Tốc độ phát
+            </Text>
             {SPEED_OPTIONS.map(option => (
               <TouchableOpacity
                 key={option.value}
                 style={[
                   styles.sheetOption,
-                  playbackSpeed === option.value && styles.sheetOptionActive,
+                  playbackSpeed === option.value && {
+                    backgroundColor: colors.primaryLight,
+                  },
                 ]}
                 onPress={() => handleSpeedChange(option.value)}>
                 <View
@@ -348,24 +375,35 @@ const PlayerScreen = () => {
                     styles.iconCircle,
                     {
                       backgroundColor:
-                        playbackSpeed === option.value ? '#e3f2fd' : '#f5f5f5',
+                        playbackSpeed === option.value
+                          ? colors.primaryLight
+                          : colors.surfaceVariant,
                     },
                   ]}>
                   <Icon
                     name="speedometer"
                     size={20}
-                    color={playbackSpeed === option.value ? '#2196F3' : '#888'}
+                    color={
+                      playbackSpeed === option.value
+                        ? colors.primary
+                        : colors.textSecondary
+                    }
                   />
                 </View>
                 <Text
                   style={[
                     styles.sheetOptionTitle,
-                    playbackSpeed === option.value && {color: '#2196F3'},
+                    {
+                      color:
+                        playbackSpeed === option.value
+                          ? colors.primary
+                          : colors.text,
+                    },
                   ]}>
                   {option.label}
                 </Text>
                 {playbackSpeed === option.value && (
-                  <Icon name="check-circle" size={22} color="#2196F3" />
+                  <Icon name="check-circle" size={22} color={colors.primary} />
                 )}
               </TouchableOpacity>
             ))}
@@ -383,8 +421,10 @@ const PlayerScreen = () => {
           style={styles.bottomSheetOverlay}
           activeOpacity={1}
           onPress={() => setHeaderMenuVisible(false)}>
-          <View style={styles.bottomSheet}>
-            <View style={styles.dragHandle} />
+          <View style={[styles.bottomSheet, {backgroundColor: colors.card}]}>
+            <View
+              style={[styles.dragHandle, {backgroundColor: colors.border}]}
+            />
 
             {/* Current Song Info */}
             {currentTrack && (
@@ -394,26 +434,45 @@ const PlayerScreen = () => {
                   style={styles.songInfoImage}
                 />
                 <View style={{flex: 1}}>
-                  <Text style={styles.songInfoTitle} numberOfLines={1}>
+                  <Text
+                    style={[styles.songInfoTitle, {color: colors.text}]}
+                    numberOfLines={1}>
                     {trackTitle}
                   </Text>
-                  <Text style={styles.songInfoArtist} numberOfLines={1}>
+                  <Text
+                    style={[
+                      styles.songInfoArtist,
+                      {color: colors.textSecondary},
+                    ]}
+                    numberOfLines={1}>
                     {trackArtist}
                   </Text>
                 </View>
               </View>
             )}
-            <View style={styles.sheetDivider} />
+            <View
+              style={[styles.sheetDivider, {backgroundColor: colors.border}]}
+            />
 
             <TouchableOpacity
               style={styles.sheetOption}
               onPress={handleAddToPlaylist}>
-              <View style={[styles.iconCircle, {backgroundColor: '#e8f5e9'}]}>
-                <Icon name="playlist-plus" size={22} color="#4caf50" />
+              <View
+                style={[
+                  styles.iconCircle,
+                  {backgroundColor: colors.success + '20'},
+                ]}>
+                <Icon name="playlist-plus" size={22} color={colors.success} />
               </View>
               <View style={styles.sheetOptionText}>
-                <Text style={styles.sheetOptionTitle}>Thêm vào Playlist</Text>
-                <Text style={styles.sheetOptionSub}>
+                <Text style={[styles.sheetOptionTitle, {color: colors.text}]}>
+                  Thêm vào Playlist
+                </Text>
+                <Text
+                  style={[
+                    styles.sheetOptionSub,
+                    {color: colors.textSecondary},
+                  ]}>
                   Lưu vào playlist của bạn
                 </Text>
               </View>
@@ -422,12 +481,24 @@ const PlayerScreen = () => {
             <TouchableOpacity
               style={styles.sheetOption}
               onPress={handleViewArtist}>
-              <View style={[styles.iconCircle, {backgroundColor: '#ede7f6'}]}>
-                <Icon name="account-music" size={22} color="#673ab7" />
+              <View
+                style={[
+                  styles.iconCircle,
+                  {backgroundColor: colors.accent + '20'},
+                ]}>
+                <Icon name="account-music" size={22} color={colors.accent} />
               </View>
               <View style={styles.sheetOptionText}>
-                <Text style={styles.sheetOptionTitle}>Xem nghệ sĩ</Text>
-                <Text style={styles.sheetOptionSub}>Đến trang nghệ sĩ</Text>
+                <Text style={[styles.sheetOptionTitle, {color: colors.text}]}>
+                  Xem nghệ sĩ
+                </Text>
+                <Text
+                  style={[
+                    styles.sheetOptionSub,
+                    {color: colors.textSecondary},
+                  ]}>
+                  Đến trang nghệ sĩ
+                </Text>
               </View>
             </TouchableOpacity>
           </View>

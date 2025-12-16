@@ -17,9 +17,11 @@ import {
   fetchUserPlaylists,
   createNewPlaylist,
 } from '../redux/slices/musicSlice';
+import {useTheme} from '../themes/ThemeContext';
 
 const PlaylistScreen = ({navigation}) => {
   const dispatch = useDispatch();
+  const {colors} = useTheme();
   const {token} = useSelector(state => state.auth);
   const {userPlaylists, isLoadingUserPlaylists} = useSelector(
     state => state.music,
@@ -77,32 +79,40 @@ const PlaylistScreen = ({navigation}) => {
         style={styles.playlistImage}
       />
       <View style={styles.playlistInfo}>
-        <Text style={styles.playlistName} numberOfLines={1}>
+        <Text
+          style={[styles.playlistName, {color: colors.text}]}
+          numberOfLines={1}>
           {item.name}
         </Text>
-        <Text style={styles.playlistSongCount}>
+        <Text style={[styles.playlistSongCount, {color: colors.textSecondary}]}>
           {item.songs ? item.songs.length : 0} bài hát
         </Text>
       </View>
-      <Icon name="chevron-right" size={22} color="#ccc" />
+      <Icon name="chevron-right" size={22} color={colors.textTertiary} />
     </TouchableOpacity>
   );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: colors.background}]}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Playlist của tôi</Text>
+        <Text style={[styles.headerTitle, {color: colors.text}]}>
+          Playlist của tôi
+        </Text>
       </View>
 
       <View style={styles.fabContainer}>
         {/* Search Bar */}
-        <View style={styles.searchContainer}>
-          <Icon name="magnify" size={20} color="#888" />
+        <View
+          style={[
+            styles.searchContainer,
+            {backgroundColor: colors.inputBackground},
+          ]}>
+          <Icon name="magnify" size={20} color={colors.placeholder} />
           <TextInput
-            style={styles.searchInput}
+            style={[styles.searchInput, {color: colors.text}]}
             placeholder="Tìm playlist..."
-            placeholderTextColor="#aaa"
+            placeholderTextColor={colors.placeholder}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
@@ -124,7 +134,7 @@ const PlaylistScreen = ({navigation}) => {
       {/* Playlist List */}
       {isLoadingUserPlaylists && !userPlaylists.length ? (
         <View style={{flex: 1, justifyContent: 'center'}}>
-          <ActivityIndicator size="large" color="#2196F3" />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : (
         <FlatList
@@ -135,14 +145,21 @@ const PlaylistScreen = ({navigation}) => {
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Icon name="playlist-music-outline" size={60} color="#ddd" />
-              <Text style={styles.emptyText}>
+              <Icon
+                name="playlist-music-outline"
+                size={60}
+                color={colors.textTertiary}
+              />
+              <Text style={[styles.emptyText, {color: colors.textSecondary}]}>
                 {searchQuery
                   ? 'Không tìm thấy playlist'
                   : 'Chưa có playlist nào'}
               </Text>
               {!searchQuery && (
-                <Text style={styles.emptySubtext}>Nhấn + để tạo mới!</Text>
+                <Text
+                  style={[styles.emptySubtext, {color: colors.textTertiary}]}>
+                  Nhấn + để tạo mới!
+                </Text>
               )}
             </View>
           }

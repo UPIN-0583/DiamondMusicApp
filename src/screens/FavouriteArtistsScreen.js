@@ -12,9 +12,12 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useNavigation} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
+import MiniPlayer from '../components/MiniPlayer';
+import {useTheme} from '../themes/ThemeContext';
 
 const FavouriteArtistsScreen = () => {
   const navigation = useNavigation();
+  const {colors} = useTheme();
   const {artists: apiArtists} = useSelector(state => state.music);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -82,40 +85,48 @@ const FavouriteArtistsScreen = () => {
 
   const renderItem = ({item}) => (
     <TouchableOpacity
-      style={styles.artistItem}
+      style={[styles.artistItem, {borderBottomColor: colors.border}]}
       onPress={() => navigation.navigate('ArtistDetail', {artist: item})}>
       <Image source={{uri: item.image}} style={styles.artistImage} />
-      <Text style={styles.artistName}>{item.name}</Text>
-      <Icon name="chevron-right" size={24} color="#ccc" />
+      <Text style={[styles.artistName, {color: colors.text}]}>{item.name}</Text>
+      <Icon name="chevron-right" size={24} color={colors.textTertiary} />
     </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView
+      style={[styles.container, {backgroundColor: colors.background}]}
+      edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.backButton}>
-          <Icon name="chevron-left" size={28} color="#333" />
+          <Icon name="chevron-left" size={28} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Nghệ sĩ yêu thích</Text>
+        <Text style={[styles.headerTitle, {color: colors.text}]}>
+          Nghệ sĩ yêu thích
+        </Text>
         <View style={styles.placeholder} />
       </View>
 
       {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <Icon name="magnify" size={20} color="#888" />
+      <View
+        style={[
+          styles.searchContainer,
+          {backgroundColor: colors.inputBackground},
+        ]}>
+        <Icon name="magnify" size={20} color={colors.placeholder} />
         <TextInput
-          style={styles.searchInput}
+          style={[styles.searchInput, {color: colors.text}]}
           placeholder="Tìm nghệ sĩ..."
-          placeholderTextColor="#aaa"
+          placeholderTextColor={colors.placeholder}
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
         {searchQuery.length > 0 && (
           <TouchableOpacity onPress={() => setSearchQuery('')}>
-            <Icon name="close-circle" size={18} color="#888" />
+            <Icon name="close-circle" size={18} color={colors.placeholder} />
           </TouchableOpacity>
         )}
       </View>
@@ -129,11 +140,19 @@ const FavouriteArtistsScreen = () => {
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={styles.emptyState}>
-            <Icon name="account-music-outline" size={60} color="#ddd" />
-            <Text style={styles.emptyText}>Không tìm thấy nghệ sĩ</Text>
+            <Icon
+              name="account-music-outline"
+              size={60}
+              color={colors.textTertiary}
+            />
+            <Text style={[styles.emptyText, {color: colors.textSecondary}]}>
+              Không tìm thấy nghệ sĩ
+            </Text>
           </View>
         }
       />
+
+      <MiniPlayer />
     </SafeAreaView>
   );
 };

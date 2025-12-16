@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import {useTheme} from '../themes/ThemeContext';
 
 /**
  * Create Playlist Center Modal
@@ -25,6 +26,8 @@ const CreatePlaylistModal = ({
   buttonText = 'Tạo',
   iconName = 'playlist-plus',
 }) => {
+  const {colors} = useTheme();
+
   return (
     <Modal
       transparent
@@ -32,29 +35,46 @@ const CreatePlaylistModal = ({
       animationType="fade"
       onRequestClose={onClose}>
       <View style={styles.overlay}>
-        <View style={styles.content}>
-          <View style={styles.iconCircle}>
-            <Icon name={iconName} size={32} color="#2196F3" />
+        <View style={[styles.content, {backgroundColor: colors.card}]}>
+          <View
+            style={[styles.iconCircle, {backgroundColor: colors.primaryLight}]}>
+            <Icon name={iconName} size={32} color={colors.primary} />
           </View>
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.subtitle}>{subtitle}</Text>
+          <Text style={[styles.title, {color: colors.text}]}>{title}</Text>
+          <Text style={[styles.subtitle, {color: colors.textSecondary}]}>
+            {subtitle}
+          </Text>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              {
+                backgroundColor: colors.inputBackground,
+                borderColor: colors.border,
+                color: colors.text,
+              },
+            ]}
             placeholder="Nhập tên playlist"
-            placeholderTextColor="#aaa"
+            placeholderTextColor={colors.placeholder}
             value={value}
             onChangeText={onChangeText}
             autoFocus
           />
           <View style={styles.buttons}>
             <TouchableOpacity
-              style={styles.btnOutline}
+              style={[styles.btnOutline, {borderColor: colors.border}]}
               onPress={onClose}
               disabled={isLoading}>
-              <Text style={styles.btnOutlineText}>Hủy</Text>
+              <Text
+                style={[styles.btnOutlineText, {color: colors.textSecondary}]}>
+                Hủy
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.btnPrimary, isLoading && {opacity: 0.7}]}
+              style={[
+                styles.btnPrimary,
+                {backgroundColor: colors.primary},
+                isLoading && {opacity: 0.7},
+              ]}
               onPress={onSubmit}
               disabled={isLoading}>
               {isLoading ? (

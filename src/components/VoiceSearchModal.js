@@ -12,8 +12,10 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Voice from '@react-native-voice/voice';
+import {useTheme} from '../themes/ThemeContext';
 
 const VoiceSearchModal = ({visible, onClose, onResult}) => {
+  const {colors} = useTheme();
   const [isListening, setIsListening] = useState(false);
   const [recognizedText, setRecognizedText] = useState('');
   const [partialText, setPartialText] = useState('');
@@ -89,15 +91,11 @@ const VoiceSearchModal = ({visible, onClose, onResult}) => {
 
   useEffect(() => {
     if (visible) {
-      // Reset state when modal opens
+      // Reset state when modal opens - do NOT auto start recording
       setRecognizedText('');
       setPartialText('');
       setError('');
-      // Delay start to ensure modal is fully open
-      const timer = setTimeout(() => {
-        startListening();
-      }, 500);
-      return () => clearTimeout(timer);
+      setIsListening(false);
     } else {
       stopListening();
     }
@@ -256,15 +254,17 @@ const VoiceSearchModal = ({visible, onClose, onResult}) => {
       animationType="fade"
       onRequestClose={handleCancel}>
       <View style={styles.overlay}>
-        <View style={styles.content}>
+        <View style={[styles.content, {backgroundColor: colors.card}]}>
           {/* Close button */}
           <TouchableOpacity style={styles.closeBtn} onPress={handleCancel}>
-            <Icon name="close" size={24} color="#666" />
+            <Icon name="close" size={24} color={colors.textSecondary} />
           </TouchableOpacity>
 
           {/* Title */}
-          <Text style={styles.title}>Tìm kiếm bằng giọng nói</Text>
-          <Text style={styles.subtitle}>
+          <Text style={[styles.title, {color: colors.text}]}>
+            Tìm kiếm bằng giọng nói
+          </Text>
+          <Text style={[styles.subtitle, {color: colors.textSecondary}]}>
             {isListening
               ? 'Đang lắng nghe...'
               : error
@@ -291,8 +291,12 @@ const VoiceSearchModal = ({visible, onClose, onResult}) => {
             <View
               style={[
                 styles.micButton,
-                isListening && styles.micButtonActive,
+                isListening && [
+                  styles.micButtonActive,
+                  {backgroundColor: colors.primary},
+                ],
                 error && styles.micButtonError,
+                !isListening && !error && {backgroundColor: colors.primary},
               ]}>
               <Icon
                 name={isListening ? 'microphone' : 'microphone-outline'}
@@ -304,8 +308,14 @@ const VoiceSearchModal = ({visible, onClose, onResult}) => {
 
           {/* Display recognized text */}
           {displayText ? (
-            <View style={styles.textContainer}>
-              <Text style={styles.recognizedText}>"{displayText}"</Text>
+            <View
+              style={[
+                styles.textContainer,
+                {backgroundColor: colors.surfaceVariant},
+              ]}>
+              <Text style={[styles.recognizedText, {color: colors.text}]}>
+                "{displayText}"
+              </Text>
             </View>
           ) : null}
 
@@ -319,21 +329,29 @@ const VoiceSearchModal = ({visible, onClose, onResult}) => {
 
           {/* Help message when not available */}
           {error && error.includes('không khả dụng') ? (
-            <View style={styles.helpContainer}>
-              <Text style={styles.helpTitle}>Để sử dụng tính năng này:</Text>
-              <Text style={styles.helpText}>
+            <View
+              style={[
+                styles.helpContainer,
+                {backgroundColor: colors.surfaceVariant},
+              ]}>
+              <Text style={[styles.helpTitle, {color: colors.text}]}>
+                Để sử dụng tính năng này:
+              </Text>
+              <Text style={[styles.helpText, {color: colors.textSecondary}]}>
                 1. Cài đặt app "Google" từ Play Store
               </Text>
-              <Text style={styles.helpText}>
+              <Text style={[styles.helpText, {color: colors.textSecondary}]}>
                 2. Mở app Google và cấu hình giọng nói
               </Text>
-              <Text style={styles.helpText}>3. Khởi động lại ứng dụng</Text>
+              <Text style={[styles.helpText, {color: colors.textSecondary}]}>
+                3. Khởi động lại ứng dụng
+              </Text>
             </View>
           ) : null}
 
           {/* Hint */}
           {isListening && !displayText && (
-            <Text style={styles.hint}>
+            <Text style={[styles.hint, {color: colors.textSecondary}]}>
               Nói tên bài hát hoặc nghệ sĩ bạn muốn tìm...
             </Text>
           )}
@@ -341,12 +359,18 @@ const VoiceSearchModal = ({visible, onClose, onResult}) => {
           {/* Action buttons */}
           <View style={styles.actions}>
             {error ? (
-              <TouchableOpacity style={styles.retryBtn} onPress={handleRetry}>
-                <Icon name="refresh" size={20} color="#2196F3" />
-                <Text style={styles.retryText}>Thử lại</Text>
+              <TouchableOpacity
+                style={[styles.retryBtn, {borderColor: colors.primary}]}
+                onPress={handleRetry}>
+                <Icon name="refresh" size={20} color={colors.primary} />
+                <Text style={[styles.retryText, {color: colors.primary}]}>
+                  Thử lại
+                </Text>
               </TouchableOpacity>
             ) : displayText && !isListening ? (
-              <TouchableOpacity style={styles.searchBtn} onPress={handleSubmit}>
+              <TouchableOpacity
+                style={[styles.searchBtn, {backgroundColor: colors.primary}]}
+                onPress={handleSubmit}>
                 <Icon name="magnify" size={20} color="#fff" />
                 <Text style={styles.searchText}>Tìm kiếm</Text>
               </TouchableOpacity>

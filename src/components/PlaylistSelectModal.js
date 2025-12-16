@@ -9,6 +9,7 @@ import {
   Dimensions,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import {useTheme} from '../themes/ThemeContext';
 
 const {height} = Dimensions.get('window');
 
@@ -27,20 +28,28 @@ const PlaylistSelectModal = ({
   onSelect,
   title = 'Thêm vào Playlist',
 }) => {
+  const {colors} = useTheme();
+
   const renderPlaylistItem = ({item}) => (
     <TouchableOpacity
-      style={styles.playlistItem}
+      style={[styles.playlistItem, {borderBottomColor: colors.border}]}
       onPress={() => onSelect(item.playlist_id)}>
-      <View style={styles.playlistItemIcon}>
-        <Icon name="playlist-music" size={24} color="#2196F3" />
+      <View
+        style={[
+          styles.playlistItemIcon,
+          {backgroundColor: colors.primaryLight},
+        ]}>
+        <Icon name="playlist-music" size={24} color={colors.primary} />
       </View>
       <View style={{flex: 1}}>
-        <Text style={styles.playlistName}>{item.name}</Text>
-        <Text style={styles.playlistCount}>
+        <Text style={[styles.playlistName, {color: colors.text}]}>
+          {item.name}
+        </Text>
+        <Text style={[styles.playlistCount, {color: colors.textSecondary}]}>
           {item.songs?.length || 0} bài hát
         </Text>
       </View>
-      <Icon name="chevron-right" size={22} color="#ccc" />
+      <Icon name="chevron-right" size={22} color={colors.textTertiary} />
     </TouchableOpacity>
   );
 
@@ -54,9 +63,9 @@ const PlaylistSelectModal = ({
         style={styles.overlay}
         activeOpacity={1}
         onPress={onClose}>
-        <View style={styles.sheet}>
-          <View style={styles.dragHandle} />
-          <Text style={styles.title}>{title}</Text>
+        <View style={[styles.sheet, {backgroundColor: colors.card}]}>
+          <View style={[styles.dragHandle, {backgroundColor: colors.border}]} />
+          <Text style={[styles.title, {color: colors.text}]}>{title}</Text>
 
           <FlatList
             data={playlists}
@@ -64,9 +73,18 @@ const PlaylistSelectModal = ({
             renderItem={renderPlaylistItem}
             ListEmptyComponent={
               <View style={styles.emptyState}>
-                <Icon name="playlist-plus" size={50} color="#ddd" />
-                <Text style={styles.emptyText}>Chưa có playlist</Text>
-                <Text style={styles.emptySubtext}>Hãy tạo playlist trước!</Text>
+                <Icon
+                  name="playlist-plus"
+                  size={50}
+                  color={colors.textTertiary}
+                />
+                <Text style={[styles.emptyText, {color: colors.textSecondary}]}>
+                  Chưa có playlist
+                </Text>
+                <Text
+                  style={[styles.emptySubtext, {color: colors.textTertiary}]}>
+                  Hãy tạo playlist trước!
+                </Text>
               </View>
             }
           />

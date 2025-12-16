@@ -11,11 +11,13 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useTheme} from '../themes/ThemeContext';
 
 const NOTIFICATION_SETTINGS_KEY = '@notification_settings';
 
 const NotificationSettingsScreen = () => {
   const navigation = useNavigation();
+  const {colors} = useTheme();
 
   const [settings, setSettings] = useState({
     newSongs: true,
@@ -56,39 +58,52 @@ const NotificationSettingsScreen = () => {
   };
 
   const SettingItem = ({icon, title, description, value, onToggle}) => (
-    <View style={styles.settingItem}>
-      <View style={styles.settingIconContainer}>
-        <Icon name={icon} size={22} color="#2196F3" />
+    <View style={[styles.settingItem, {borderBottomColor: colors.border}]}>
+      <View
+        style={[
+          styles.settingIconContainer,
+          {backgroundColor: colors.primaryLight},
+        ]}>
+        <Icon name={icon} size={22} color={colors.primary} />
       </View>
       <View style={styles.settingContent}>
-        <Text style={styles.settingTitle}>{title}</Text>
-        <Text style={styles.settingDescription}>{description}</Text>
+        <Text style={[styles.settingTitle, {color: colors.text}]}>{title}</Text>
+        <Text
+          style={[styles.settingDescription, {color: colors.textSecondary}]}>
+          {description}
+        </Text>
       </View>
       <Switch
         value={value}
         onValueChange={onToggle}
-        trackColor={{false: '#e0e0e0', true: '#90caf9'}}
-        thumbColor={value ? '#2196F3' : '#fff'}
+        trackColor={{false: colors.border, true: colors.primaryLight}}
+        thumbColor={value ? colors.primary : colors.textTertiary}
       />
     </View>
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView
+      style={[styles.container, {backgroundColor: colors.surface}]}
+      edges={['top']}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, {backgroundColor: colors.card}]}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.backBtn}>
-          <Icon name="chevron-left" size={28} color="#333" />
+          <Icon name="chevron-left" size={28} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Quản lý thông báo</Text>
+        <Text style={[styles.headerTitle, {color: colors.text}]}>
+          Quản lý thông báo
+        </Text>
         <View style={{width: 40}} />
       </View>
 
       {/* Settings List */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Thông báo đẩy</Text>
+      <View style={[styles.section, {backgroundColor: colors.card}]}>
+        <Text style={[styles.sectionTitle, {color: colors.textSecondary}]}>
+          Thông báo đẩy
+        </Text>
 
         <SettingItem
           icon="music-note-plus"
@@ -116,9 +131,13 @@ const NotificationSettingsScreen = () => {
       </View>
 
       {/* Info */}
-      <View style={styles.infoBox}>
-        <Icon name="information-outline" size={18} color="#666" />
-        <Text style={styles.infoText}>
+      <View style={[styles.infoBox, {backgroundColor: colors.surfaceVariant}]}>
+        <Icon
+          name="information-outline"
+          size={18}
+          color={colors.textSecondary}
+        />
+        <Text style={[styles.infoText, {color: colors.textSecondary}]}>
           Cài đặt sẽ được tự động lưu khi bạn thay đổi
         </Text>
       </View>

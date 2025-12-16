@@ -14,11 +14,16 @@ import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
 import {logout} from '../redux/slices/authSlice';
 import {getUserStats} from '../services/api';
+import TrackPlayer from 'react-native-track-player';
+import {usePlayerStore} from '../store/usePlayerStore';
+import {useTheme} from '../themes/ThemeContext';
 
 const AccountScreen = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
+  const {colors} = useTheme();
   const {user, token} = useSelector(state => state.auth);
+  const {setTrackList, setCurrentTrackIndex} = usePlayerStore();
 
   const [stats, setStats] = useState({
     likedSongsCount: 0,
@@ -51,7 +56,17 @@ const AccountScreen = () => {
       {
         text: 'Đăng xuất',
         style: 'destructive',
-        onPress: () => {
+        onPress: async () => {
+          // Dừng nhạc và xóa queue
+          try {
+            await TrackPlayer.reset();
+          } catch (e) {
+            console.log('TrackPlayer reset error:', e);
+          }
+          // Xóa player store
+          setTrackList([]);
+          setCurrentTrackIndex(0);
+          // Logout
           dispatch(logout());
           navigation.reset({
             index: 0,
@@ -63,20 +78,32 @@ const AccountScreen = () => {
   };
 
   const MenuItem = ({icon, title, subtitle, onPress, showArrow = true}) => (
-    <TouchableOpacity style={styles.menuItem} onPress={onPress}>
-      <View style={styles.menuIconContainer}>
-        <Icon name={icon} size={24} color="#2196F3" />
+    <TouchableOpacity
+      style={[styles.menuItem, {borderBottomColor: colors.border}]}
+      onPress={onPress}>
+      <View
+        style={[
+          styles.menuIconContainer,
+          {backgroundColor: colors.primaryLight},
+        ]}>
+        <Icon name={icon} size={24} color={colors.primary} />
       </View>
       <View style={styles.menuTextContainer}>
-        <Text style={styles.menuTitle}>{title}</Text>
-        {subtitle && <Text style={styles.menuSubtitle}>{subtitle}</Text>}
+        <Text style={[styles.menuTitle, {color: colors.text}]}>{title}</Text>
+        {subtitle && (
+          <Text style={[styles.menuSubtitle, {color: colors.textSecondary}]}>
+            {subtitle}
+          </Text>
+        )}
       </View>
-      {showArrow && <Icon name="chevron-right" size={24} color="#ccc" />}
+      {showArrow && (
+        <Icon name="chevron-right" size={24} color={colors.textTertiary} />
+      )}
     </TouchableOpacity>
   );
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={[styles.container, {backgroundColor: colors.surface}]}>
       {/* Profile Header */}
       <LinearGradient
         colors={['#2196F3', '#1976D2']}
@@ -97,29 +124,43 @@ const AccountScreen = () => {
       </LinearGradient>
 
       {/* Stats Section */}
-      <View style={styles.statsContainer}>
+      <View style={[styles.statsContainer, {backgroundColor: colors.card}]}>
         <View style={styles.statItem}>
-          <Icon name="account-heart" size={28} color="#2196F3" />
-          <Text style={styles.statNumber}>{stats.likedArtistsCount}</Text>
-          <Text style={styles.statLabel}>Nghệ sĩ</Text>
+          <Icon name="account-heart" size={28} color={colors.primary} />
+          <Text style={[styles.statNumber, {color: colors.text}]}>
+            {stats.likedArtistsCount}
+          </Text>
+          <Text style={[styles.statLabel, {color: colors.textSecondary}]}>
+            Nghệ sĩ
+          </Text>
         </View>
-        <View style={styles.statDivider} />
+        <View style={[styles.statDivider, {backgroundColor: colors.border}]} />
         <View style={styles.statItem}>
-          <Icon name="playlist-music" size={28} color="#2196F3" />
-          <Text style={styles.statNumber}>{stats.playlistsCount}</Text>
-          <Text style={styles.statLabel}>Playlist</Text>
+          <Icon name="playlist-music" size={28} color={colors.primary} />
+          <Text style={[styles.statNumber, {color: colors.text}]}>
+            {stats.playlistsCount}
+          </Text>
+          <Text style={[styles.statLabel, {color: colors.textSecondary}]}>
+            Playlist
+          </Text>
         </View>
-        <View style={styles.statDivider} />
+        <View style={[styles.statDivider, {backgroundColor: colors.border}]} />
         <View style={styles.statItem}>
-          <Icon name="heart" size={28} color="#2196F3" />
-          <Text style={styles.statNumber}>{stats.likedSongsCount}</Text>
-          <Text style={styles.statLabel}>Yêu thích</Text>
+          <Icon name="heart" size={28} color={colors.primary} />
+          <Text style={[styles.statNumber, {color: colors.text}]}>
+            {stats.likedSongsCount}
+          </Text>
+          <Text style={[styles.statLabel, {color: colors.textSecondary}]}>
+            Yêu thích
+          </Text>
         </View>
       </View>
 
       {/* Menu Sections */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Cài đặt</Text>
+      <View style={[styles.section, {backgroundColor: colors.card}]}>
+        <Text style={[styles.sectionTitle, {color: colors.textSecondary}]}>
+          Cài đặt
+        </Text>
         <MenuItem
           icon="shield-account"
           title="Bảo mật"
@@ -138,14 +179,21 @@ const AccountScreen = () => {
           icon="palette"
           title="Giao diện"
           subtitle="Tùy chỉnh giao diện"
-          onPress={() => handlePress('Giao diện')}
+          onPress={() => navigation.getParent().navigate('ThemeSettings')}
         />
       </View>
 
       {/* Logout Button */}
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Icon name="logout" size={20} color="#ff3b30" />
-        <Text style={styles.logoutText}>Đăng xuất</Text>
+      <TouchableOpacity
+        style={[
+          styles.logoutButton,
+          {backgroundColor: colors.card, borderColor: colors.error},
+        ]}
+        onPress={handleLogout}>
+        <Icon name="logout" size={20} color={colors.error} />
+        <Text style={[styles.logoutText, {color: colors.error}]}>
+          Đăng xuất
+        </Text>
       </TouchableOpacity>
 
       <View style={styles.bottomPadding} />

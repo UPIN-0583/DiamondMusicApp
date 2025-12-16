@@ -212,3 +212,34 @@ export const getAIGenres = async () => {
 export const getSongsByGenre = async genreName => {
   return apiRequest(`/ai/songs/${encodeURIComponent(genreName)}`);
 };
+
+// ============ LYRICS SEARCH APIs ============
+/**
+ * Tìm kiếm bài hát theo lời bài hát
+ * @param {string} query - Đoạn lời bài hát (có dấu hoặc không dấu đều được)
+ * @param {number} limit - Số kết quả tối đa (mặc định 10)
+ */
+export const searchByLyrics = async (query, limit = 10) => {
+  return apiRequest('/lyrics/search', {
+    method: 'POST',
+    body: {query, limit},
+  });
+};
+
+/**
+ * Lấy lời bài hát của một bài hát
+ * @param {number} songId - ID của bài hát
+ */
+export const getLyrics = async songId => {
+  return apiRequest(`/lyrics/${songId}`);
+};
+
+/**
+ * Thêm lời bài hát mới (admin)
+ */
+export const addLyrics = async (songId, content, language = 'vi') => {
+  return apiRequest('/lyrics', {
+    method: 'POST',
+    body: {songId, content, language},
+  });
+};

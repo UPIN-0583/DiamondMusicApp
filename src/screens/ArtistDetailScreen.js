@@ -28,6 +28,8 @@ import SongItem from '../components/SongItem';
 import SongOptionsModal from '../components/SongOptionsModal';
 import PlaylistSelectModal from '../components/PlaylistSelectModal';
 import CreatePlaylistModal from '../components/CreatePlaylistModal';
+import MiniPlayer from '../components/MiniPlayer';
+import {useTheme} from '../themes/ThemeContext';
 
 const {width, height} = Dimensions.get('window');
 
@@ -35,6 +37,7 @@ const ArtistDetailScreen = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const route = useRoute();
+  const {colors} = useTheme();
   const {setTrackList, setCurrentTrackIndex} = usePlayerStore();
 
   const dispatch = useDispatch();
@@ -240,20 +243,26 @@ const ArtistDetailScreen = () => {
           colors={[
             'rgba(0,0,0,0.3)',
             'transparent',
-            'rgba(255,255,255,0.8)',
-            '#fff',
+            colors.background + 'CC',
+            colors.background,
           ]}
           style={[styles.coverGradient, {paddingTop: insets.top + 10}]}>
           <View style={styles.header}>
             <TouchableOpacity
               onPress={() => navigation.goBack()}
-              style={styles.headerButton}>
-              <Icon name="chevron-left" size={28} color="#333" />
+              style={[
+                styles.headerButton,
+                {backgroundColor: colors.background},
+              ]}>
+              <Icon name="chevron-left" size={28} color={colors.text} />
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.headerButton}
+              style={[
+                styles.headerButton,
+                {backgroundColor: colors.background},
+              ]}
               onPress={handleOpenCreatePlaylist}>
-              <Icon name="playlist-plus" size={24} color="#333" />
+              <Icon name="playlist-plus" size={24} color={colors.text} />
             </TouchableOpacity>
           </View>
         </LinearGradient>
@@ -261,25 +270,37 @@ const ArtistDetailScreen = () => {
 
       <View style={styles.artistInfoContainer}>
         <View style={{flex: 1}}>
-          <Text style={styles.artistName}>{artist.name}</Text>
-          <Text style={styles.songCount}>{artistSongs.length} bài hát</Text>
+          <Text style={[styles.artistName, {color: colors.text}]}>
+            {artist.name}
+          </Text>
+          <Text style={[styles.songCount, {color: colors.textSecondary}]}>
+            {artistSongs.length} bài hát
+          </Text>
         </View>
         <TouchableOpacity
-          style={[styles.followButton, isFollowed && styles.followButtonActive]}
+          style={[
+            styles.followButton,
+            {borderColor: colors.primary},
+            isFollowed && {backgroundColor: colors.primary},
+          ]}
           onPress={handleToggleFollow}>
           <Icon
             name={isFollowed ? 'account-check' : 'account-plus'}
             size={22}
-            color={isFollowed ? '#fff' : '#2196F3'}
+            color={isFollowed ? '#fff' : colors.primary}
           />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.playFab} onPress={handlePlayAll}>
+        <TouchableOpacity
+          style={[styles.playFab, {backgroundColor: colors.primary}]}
+          onPress={handlePlayAll}>
           <Icon name="play" size={28} color="#fff" />
         </TouchableOpacity>
       </View>
 
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>Bài hát nổi bật</Text>
+        <Text style={[styles.sectionTitle, {color: colors.text}]}>
+          Bài hát nổi bật
+        </Text>
       </View>
     </View>
   );
@@ -295,18 +316,22 @@ const ArtistDetailScreen = () => {
 
   if (isLoading) {
     return (
-      <View style={[styles.container, {justifyContent: 'center'}]}>
-        <ActivityIndicator size="large" color="#2196F3" />
+      <View
+        style={[
+          styles.container,
+          {justifyContent: 'center', backgroundColor: colors.background},
+        ]}>
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: colors.background}]}>
       <StatusBar
         translucent
         backgroundColor="transparent"
-        barStyle="dark-content"
+        barStyle={colors.statusBar}
       />
       <FlatList
         data={artistSongs}
@@ -317,8 +342,10 @@ const ArtistDetailScreen = () => {
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={styles.emptyState}>
-            <Icon name="music-note-off" size={60} color="#ddd" />
-            <Text style={styles.emptyText}>Không tìm thấy bài hát</Text>
+            <Icon name="music-note-off" size={60} color={colors.textTertiary} />
+            <Text style={[styles.emptyText, {color: colors.textSecondary}]}>
+              Không tìm thấy bài hát
+            </Text>
           </View>
         }
       />
@@ -352,6 +379,8 @@ const ArtistDetailScreen = () => {
         subtitle={`Tạo playlist mới với tất cả ${artistSongs.length} bài hát từ ${artist.name}`}
         isLoading={isCreatingPlaylist}
       />
+
+      <MiniPlayer />
     </View>
   );
 };

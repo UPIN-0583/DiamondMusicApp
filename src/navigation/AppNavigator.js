@@ -13,6 +13,7 @@ import ArtistDetailScreen from '../screens/ArtistDetailScreen';
 import SearchScreen from '../screens/SearchScreen';
 import NotificationSettingsScreen from '../screens/NotificationSettingsScreen';
 import ChangePasswordScreen from '../screens/ChangePasswordScreen';
+import ThemeSettingsScreen from '../screens/ThemeSettingsScreen';
 import AIChatScreen from '../screens/AIChatScreen';
 import RecommendedSongsScreen from '../screens/RecommendedSongsScreen';
 
@@ -65,6 +66,7 @@ const AppNavigator = () => {
         component={NotificationSettingsScreen}
       />
       <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
+      <Stack.Screen name="ThemeSettings" component={ThemeSettingsScreen} />
     </Stack.Navigator>
   );
 };

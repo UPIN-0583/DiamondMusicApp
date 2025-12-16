@@ -16,6 +16,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useDispatch, useSelector} from 'react-redux';
 import {loginUser} from '../redux/slices/authSlice';
+import {useTheme} from '../themes/ThemeContext';
 
 const LoginScreen = ({navigation}) => {
   const [email, setEmail] = useState('');
@@ -23,6 +24,7 @@ const LoginScreen = ({navigation}) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const dispatch = useDispatch();
+  const {colors} = useTheme();
   const {isLoading, error} = useSelector(state => state.auth);
 
   const handleLogin = async () => {
@@ -41,7 +43,8 @@ const LoginScreen = ({navigation}) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, {backgroundColor: colors.background}]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}>
@@ -50,21 +53,39 @@ const LoginScreen = ({navigation}) => {
           showsVerticalScrollIndicator={false}>
           {/* Logo */}
           <View style={styles.logoContainer}>
-            <View style={styles.logoWrapper}>
-              <Icon name="music-note" size={50} color="#2196F3" />
+            <View
+              style={[
+                styles.logoWrapper,
+                {backgroundColor: colors.primaryLight},
+              ]}>
+              <Image
+                source={require('../assets/LOGO_APP.png')}
+                style={styles.logo}
+              />
             </View>
           </View>
 
           {/* Title */}
-          <Text style={styles.title}>Chào mừng trở lại</Text>
-          <Text style={styles.subtitle}>Đăng nhập vào tài khoản của bạn</Text>
+          <Text style={[styles.title, {color: colors.text}]}>
+            Chào mừng trở lại
+          </Text>
+          <Text style={[styles.subtitle, {color: colors.textSecondary}]}>
+            Đăng nhập vào tài khoản của bạn
+          </Text>
 
           {/* Email Input */}
-          <View style={styles.inputContainer}>
+          <View
+            style={[
+              styles.inputContainer,
+              {
+                backgroundColor: colors.inputBackground,
+                borderColor: colors.border,
+              },
+            ]}>
             <TextInput
-              style={styles.input}
+              style={[styles.input, {color: colors.text}]}
               placeholder="Địa chỉ Email"
-              placeholderTextColor="#999"
+              placeholderTextColor={colors.placeholder}
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -73,11 +94,18 @@ const LoginScreen = ({navigation}) => {
           </View>
 
           {/* Password Input */}
-          <View style={styles.inputContainer}>
+          <View
+            style={[
+              styles.inputContainer,
+              {
+                backgroundColor: colors.inputBackground,
+                borderColor: colors.border,
+              },
+            ]}>
             <TextInput
-              style={styles.input}
+              style={[styles.input, {color: colors.text}]}
               placeholder="Mật khẩu"
-              placeholderTextColor="#999"
+              placeholderTextColor={colors.placeholder}
               value={password}
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
@@ -88,19 +116,21 @@ const LoginScreen = ({navigation}) => {
               <Icon
                 name={showPassword ? 'eye' : 'eye-off'}
                 size={22}
-                color="#999"
+                color={colors.placeholder}
               />
             </TouchableOpacity>
           </View>
 
           {/* Forgot Password */}
           <TouchableOpacity style={styles.forgotButton}>
-            <Text style={styles.forgotText}>Quên mật khẩu?</Text>
+            <Text style={[styles.forgotText, {color: colors.primary}]}>
+              Quên mật khẩu?
+            </Text>
           </TouchableOpacity>
 
           {/* Login Button */}
           <TouchableOpacity
-            style={styles.loginButton}
+            style={[styles.loginButton, {backgroundColor: colors.primary}]}
             onPress={handleLogin}
             disabled={isLoading}>
             {isLoading ? (
@@ -112,9 +142,13 @@ const LoginScreen = ({navigation}) => {
 
           {/* Register Link */}
           <View style={styles.registerContainer}>
-            <Text style={styles.registerText}>Chưa có tài khoản? </Text>
+            <Text style={[styles.registerText, {color: colors.textSecondary}]}>
+              Chưa có tài khoản?{' '}
+            </Text>
             <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-              <Text style={styles.registerLink}>Đăng ký</Text>
+              <Text style={[styles.registerLink, {color: colors.primary}]}>
+                Đăng ký
+              </Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -139,6 +173,10 @@ const styles = StyleSheet.create({
   logoContainer: {
     alignItems: 'center',
     marginBottom: 30,
+  },
+  logo: {
+    width: 80,
+    height: 80,
   },
   logoWrapper: {
     width: 80,

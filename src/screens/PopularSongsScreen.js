@@ -22,13 +22,16 @@ import {
 import SongItem from '../components/SongItem';
 import SongOptionsModal from '../components/SongOptionsModal';
 import PlaylistSelectModal from '../components/PlaylistSelectModal';
+import MiniPlayer from '../components/MiniPlayer';
+import {useTheme} from '../themes/ThemeContext';
 
 const PopularSongsScreen = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const {trackList, setCurrentTrackIndex} = usePlayerStore();
+  const {colors} = useTheme();
+  const {setTrackList, setCurrentTrackIndex} = usePlayerStore();
   const {token, likedSongs} = useSelector(state => state.auth);
-  const {userPlaylists} = useSelector(state => state.music);
+  const {userPlaylists, songs, artists} = useSelector(state => state.music);
 
   // Modal States
   const [optionsModalVisible, setOptionsModalVisible] = useState(false);
@@ -36,17 +39,19 @@ const PopularSongsScreen = () => {
   const [selectedSong, setSelectedSong] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Filter tracks by search query
-  const filteredTracks = trackList.filter(
+  // Filter tracks by search query - use songs from Redux (original list)
+  const filteredTracks = songs.filter(
     t =>
       t.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       t.artist?.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const handlePlayTrack = async index => {
+    // Set the songs list to player and play from that index
+    setTrackList(songs);
     setCurrentTrackIndex(index);
     await TrackPlayer.reset();
-    await TrackPlayer.add(trackList);
+    await TrackPlayer.add(songs);
     await TrackPlayer.skip(index);
     await TrackPlayer.play();
     navigation.navigate('Player');
@@ -106,23 +111,27 @@ const PopularSongsScreen = () => {
       }),
     )
       .unwrap()
-      .then(() => Alert.alert('Success', 'Added to playlist'))
-      .catch(err => Alert.alert('Error', err));
+      .then(() => Alert.alert('Thành công', 'Đã thêm vào playlist'))
+      .catch(err => Alert.alert('Lỗi', err));
     setPlaylistModalVisible(false);
   };
 
   const handleViewArtist = () => {
     setOptionsModalVisible(false);
     if (selectedSong?.artistId) {
+      // Tìm ảnh nghệ sĩ đúng từ danh sách artists
+      const artistData = artists.find(
+        a => a.id?.toString() === selectedSong.artistId?.toString(),
+      );
       navigation.navigate('ArtistDetail', {
         artist: {
           id: selectedSong.artistId,
           name: selectedSong.artist,
-          image: selectedSong.artwork,
+          image: artistData?.image || selectedSong.artwork,
         },
       });
     } else {
-      Alert.alert('Info', 'Artist info unavailable');
+      Alert.alert('Thông báo', 'Không có thông tin nghệ sĩ');
     }
   };
 
@@ -135,31 +144,39 @@ const PopularSongsScreen = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView
+      style={[styles.container, {backgroundColor: colors.background}]}
+      edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.backButton}>
-          <Icon name="chevron-left" size={28} color="#333" />
+          <Icon name="chevron-left" size={28} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Bài hát phổ biến</Text>
+        <Text style={[styles.headerTitle, {color: colors.text}]}>
+          Bài hát phổ biến
+        </Text>
         <View style={styles.placeholder} />
       </View>
 
       {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <Icon name="magnify" size={20} color="#888" />
+      <View
+        style={[
+          styles.searchContainer,
+          {backgroundColor: colors.inputBackground},
+        ]}>
+        <Icon name="magnify" size={20} color={colors.placeholder} />
         <TextInput
-          style={styles.searchInput}
+          style={[styles.searchInput, {color: colors.text}]}
           placeholder="Tìm bài hát..."
-          placeholderTextColor="#aaa"
+          placeholderTextColor={colors.placeholder}
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
         {searchQuery.length > 0 && (
           <TouchableOpacity onPress={() => setSearchQuery('')}>
-            <Icon name="close-circle" size={18} color="#888" />
+            <Icon name="close-circle" size={18} color={colors.placeholder} />
           </TouchableOpacity>
         )}
       </View>
@@ -173,8 +190,10 @@ const PopularSongsScreen = () => {
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={styles.emptyState}>
-            <Icon name="music-note-off" size={60} color="#ddd" />
-            <Text style={styles.emptyText}>Không tìm thấy bài hát</Text>
+            <Icon name="music-note-off" size={60} color={colors.textTertiary} />
+            <Text style={[styles.emptyText, {color: colors.textSecondary}]}>
+              Không tìm thấy bài hát
+            </Text>
           </View>
         }
       />
@@ -197,6 +216,8 @@ const PopularSongsScreen = () => {
         playlists={userPlaylists}
         onSelect={handleSelectPlaylist}
       />
+
+      <MiniPlayer />
     </SafeAreaView>
   );
 };

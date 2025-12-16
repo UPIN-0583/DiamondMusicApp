@@ -12,12 +12,15 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useNavigation} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
+import MiniPlayer from '../components/MiniPlayer';
+import {useTheme} from '../themes/ThemeContext';
 
 const {width} = Dimensions.get('window');
 const CARD_WIDTH = (width - 60) / 2;
 
 const TopPlaylistsScreen = () => {
   const navigation = useNavigation();
+  const {colors} = useTheme();
   const {playlists: globalPlaylists} = useSelector(state => state.music);
 
   const playlists = globalPlaylists;
@@ -27,25 +30,33 @@ const TopPlaylistsScreen = () => {
       style={styles.playlistCard}
       onPress={() => navigation.navigate('PlaylistDetail', {playlist: item})}>
       <Image source={{uri: item.image}} style={styles.playlistImage} />
-      <Text style={styles.playlistName} numberOfLines={1}>
+      <Text
+        style={[styles.playlistName, {color: colors.text}]}
+        numberOfLines={1}>
         {item.name}
       </Text>
-      <Text style={styles.playlistCategory} numberOfLines={1}>
+      <Text
+        style={[styles.playlistCategory, {color: colors.textSecondary}]}
+        numberOfLines={1}>
         {item.category}
       </Text>
     </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView
+      style={[styles.container, {backgroundColor: colors.background}]}
+      edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.backButton}>
-          <Icon name="chevron-left" size={28} color="#333" />
+          <Icon name="chevron-left" size={28} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Top Playlists</Text>
+        <Text style={[styles.headerTitle, {color: colors.text}]}>
+          Top Playlists
+        </Text>
         <View style={styles.placeholder} />
       </View>
 
@@ -59,6 +70,8 @@ const TopPlaylistsScreen = () => {
         columnWrapperStyle={styles.columnWrapper}
         showsVerticalScrollIndicator={false}
       />
+
+      <MiniPlayer />
     </SafeAreaView>
   );
 };

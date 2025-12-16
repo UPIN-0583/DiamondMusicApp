@@ -14,9 +14,11 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useNavigation} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
 import {changePassword} from '../services/api';
+import {useTheme} from '../themes/ThemeContext';
 
 const ChangePasswordScreen = () => {
   const navigation = useNavigation();
+  const {colors} = useTheme();
   const {token} = useSelector(state => state.auth);
 
   const [oldPassword, setOldPassword] = useState('');
@@ -60,25 +62,29 @@ const ChangePasswordScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView
+      style={[styles.container, {backgroundColor: colors.background}]}
+      edges={['top']}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled">
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, {backgroundColor: colors.card}]}>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
             style={styles.backBtn}>
-            <Icon name="chevron-left" size={28} color="#333" />
+            <Icon name="chevron-left" size={28} color={colors.text} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Đổi mật khẩu</Text>
+          <Text style={[styles.headerTitle, {color: colors.text}]}>
+            Đổi mật khẩu
+          </Text>
           <View style={{width: 40}} />
         </View>
 
         {/* Info */}
-        <View style={styles.infoBox}>
-          <Icon name="information-outline" size={20} color="#2196F3" />
-          <Text style={styles.infoText}>
+        <View style={[styles.infoBox, {backgroundColor: colors.primaryLight}]}>
+          <Icon name="information-outline" size={20} color={colors.primary} />
+          <Text style={[styles.infoText, {color: colors.primary}]}>
             Mật khẩu mới phải có ít nhất 8 ký tự
           </Text>
         </View>
@@ -87,14 +93,23 @@ const ChangePasswordScreen = () => {
         <View style={styles.form}>
           {/* Old Password */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Mật khẩu hiện tại</Text>
-            <View style={styles.passwordContainer}>
+            <Text style={[styles.label, {color: colors.text}]}>
+              Mật khẩu hiện tại
+            </Text>
+            <View
+              style={[
+                styles.passwordContainer,
+                {
+                  backgroundColor: colors.inputBackground,
+                  borderColor: colors.border,
+                },
+              ]}>
               <TextInput
-                style={styles.passwordInput}
+                style={[styles.passwordInput, {color: colors.text}]}
                 value={oldPassword}
                 onChangeText={setOldPassword}
                 placeholder="Nhập mật khẩu hiện tại"
-                placeholderTextColor="#aaa"
+                placeholderTextColor={colors.placeholder}
                 secureTextEntry={!showOld}
                 returnKeyType="next"
                 onSubmitEditing={() => newPasswordRef.current?.focus()}
@@ -105,7 +120,7 @@ const ChangePasswordScreen = () => {
                 <Icon
                   name={showOld ? 'eye-off' : 'eye'}
                   size={22}
-                  color="#888"
+                  color={colors.placeholder}
                 />
               </TouchableOpacity>
             </View>
@@ -113,15 +128,24 @@ const ChangePasswordScreen = () => {
 
           {/* New Password */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Mật khẩu mới</Text>
-            <View style={styles.passwordContainer}>
+            <Text style={[styles.label, {color: colors.text}]}>
+              Mật khẩu mới
+            </Text>
+            <View
+              style={[
+                styles.passwordContainer,
+                {
+                  backgroundColor: colors.inputBackground,
+                  borderColor: colors.border,
+                },
+              ]}>
               <TextInput
                 ref={newPasswordRef}
-                style={styles.passwordInput}
+                style={[styles.passwordInput, {color: colors.text}]}
                 value={newPassword}
                 onChangeText={setNewPassword}
                 placeholder="Nhập mật khẩu mới"
-                placeholderTextColor="#aaa"
+                placeholderTextColor={colors.placeholder}
                 secureTextEntry={!showNew}
                 returnKeyType="next"
                 onSubmitEditing={() => confirmPasswordRef.current?.focus()}
@@ -132,7 +156,7 @@ const ChangePasswordScreen = () => {
                 <Icon
                   name={showNew ? 'eye-off' : 'eye'}
                   size={22}
-                  color="#888"
+                  color={colors.placeholder}
                 />
               </TouchableOpacity>
             </View>
@@ -140,15 +164,24 @@ const ChangePasswordScreen = () => {
 
           {/* Confirm Password */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Xác nhận mật khẩu mới</Text>
-            <View style={styles.passwordContainer}>
+            <Text style={[styles.label, {color: colors.text}]}>
+              Xác nhận mật khẩu mới
+            </Text>
+            <View
+              style={[
+                styles.passwordContainer,
+                {
+                  backgroundColor: colors.inputBackground,
+                  borderColor: colors.border,
+                },
+              ]}>
               <TextInput
                 ref={confirmPasswordRef}
-                style={styles.passwordInput}
+                style={[styles.passwordInput, {color: colors.text}]}
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 placeholder="Nhập lại mật khẩu mới"
-                placeholderTextColor="#aaa"
+                placeholderTextColor={colors.placeholder}
                 secureTextEntry={!showConfirm}
                 returnKeyType="done"
                 onSubmitEditing={handleChangePassword}
@@ -159,7 +192,7 @@ const ChangePasswordScreen = () => {
                 <Icon
                   name={showConfirm ? 'eye-off' : 'eye'}
                   size={22}
-                  color="#888"
+                  color={colors.placeholder}
                 />
               </TouchableOpacity>
             </View>
@@ -168,7 +201,11 @@ const ChangePasswordScreen = () => {
 
         {/* Submit Button */}
         <TouchableOpacity
-          style={[styles.submitBtn, isLoading && {opacity: 0.7}]}
+          style={[
+            styles.submitBtn,
+            {backgroundColor: colors.primary},
+            isLoading && {opacity: 0.7},
+          ]}
           onPress={handleChangePassword}
           disabled={isLoading}>
           {isLoading ? (

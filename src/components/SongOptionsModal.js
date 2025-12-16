@@ -9,6 +9,7 @@ import {
   Dimensions,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import {useTheme} from '../themes/ThemeContext';
 
 const {height} = Dimensions.get('window');
 
@@ -27,6 +28,7 @@ const SongOptionsModal = ({
   onRemoveFromPlaylist,
   onShare,
 }) => {
+  const {colors} = useTheme();
   if (!song) return null;
 
   return (
@@ -39,8 +41,8 @@ const SongOptionsModal = ({
         style={styles.overlay}
         activeOpacity={1}
         onPress={onClose}>
-        <View style={styles.sheet}>
-          <View style={styles.dragHandle} />
+        <View style={[styles.sheet, {backgroundColor: colors.card}]}>
+          <View style={[styles.dragHandle, {backgroundColor: colors.border}]} />
 
           {/* Song Info Header */}
           <View style={styles.songInfoHeader}>
@@ -49,16 +51,20 @@ const SongOptionsModal = ({
               style={styles.songImage}
             />
             <View style={{flex: 1}}>
-              <Text style={styles.songTitle} numberOfLines={1}>
+              <Text
+                style={[styles.songTitle, {color: colors.text}]}
+                numberOfLines={1}>
                 {song.title}
               </Text>
-              <Text style={styles.songArtist} numberOfLines={1}>
+              <Text
+                style={[styles.songArtist, {color: colors.textSecondary}]}
+                numberOfLines={1}>
                 {song.artist}
               </Text>
             </View>
           </View>
 
-          <View style={styles.divider} />
+          <View style={[styles.divider, {backgroundColor: colors.border}]} />
 
           {/* Like Song */}
           {onLike && (
@@ -66,19 +72,23 @@ const SongOptionsModal = ({
               <View
                 style={[
                   styles.iconCircle,
-                  {backgroundColor: isLiked ? '#ffebee' : '#fce4ec'},
+                  {
+                    backgroundColor: isLiked
+                      ? colors.error + '20'
+                      : colors.error + '15',
+                  },
                 ]}>
                 <Icon
                   name={isLiked ? 'heart' : 'heart-outline'}
                   size={22}
-                  color="#ff4757"
+                  color={colors.error}
                 />
               </View>
               <View style={styles.optionText}>
-                <Text style={styles.optionTitle}>
+                <Text style={[styles.optionTitle, {color: colors.text}]}>
                   {isLiked ? 'Bỏ thích' : 'Yêu thích'}
                 </Text>
-                <Text style={styles.optionSub}>
+                <Text style={[styles.optionSub, {color: colors.textSecondary}]}>
                   {isLiked
                     ? 'Xóa khỏi danh sách yêu thích'
                     : 'Thêm vào yêu thích'}
@@ -92,12 +102,20 @@ const SongOptionsModal = ({
             <TouchableOpacity
               style={styles.option}
               onPress={onRemoveFromPlaylist}>
-              <View style={[styles.iconCircle, {backgroundColor: '#fff3e0'}]}>
-                <Icon name="playlist-minus" size={22} color="#ff9800" />
+              <View
+                style={[
+                  styles.iconCircle,
+                  {backgroundColor: colors.accent + '20'},
+                ]}>
+                <Icon name="playlist-minus" size={22} color={colors.accent} />
               </View>
               <View style={styles.optionText}>
-                <Text style={styles.optionTitle}>Xóa khỏi playlist</Text>
-                <Text style={styles.optionSub}>Xóa bài hát này</Text>
+                <Text style={[styles.optionTitle, {color: colors.text}]}>
+                  Xóa khỏi playlist
+                </Text>
+                <Text style={[styles.optionSub, {color: colors.textSecondary}]}>
+                  Xóa bài hát này
+                </Text>
               </View>
             </TouchableOpacity>
           )}
@@ -105,12 +123,20 @@ const SongOptionsModal = ({
           {/* Add to Playlist */}
           {onAddToPlaylist && (
             <TouchableOpacity style={styles.option} onPress={onAddToPlaylist}>
-              <View style={[styles.iconCircle, {backgroundColor: '#e8f5e9'}]}>
-                <Icon name="playlist-plus" size={22} color="#4caf50" />
+              <View
+                style={[
+                  styles.iconCircle,
+                  {backgroundColor: colors.success + '20'},
+                ]}>
+                <Icon name="playlist-plus" size={22} color={colors.success} />
               </View>
               <View style={styles.optionText}>
-                <Text style={styles.optionTitle}>Thêm vào playlist</Text>
-                <Text style={styles.optionSub}>Lưu vào playlist của bạn</Text>
+                <Text style={[styles.optionTitle, {color: colors.text}]}>
+                  Thêm vào playlist
+                </Text>
+                <Text style={[styles.optionSub, {color: colors.textSecondary}]}>
+                  Lưu vào playlist của bạn
+                </Text>
               </View>
             </TouchableOpacity>
           )}
@@ -118,12 +144,20 @@ const SongOptionsModal = ({
           {/* View Artist */}
           {onViewArtist && (
             <TouchableOpacity style={styles.option} onPress={onViewArtist}>
-              <View style={[styles.iconCircle, {backgroundColor: '#ede7f6'}]}>
-                <Icon name="account-music" size={22} color="#673ab7" />
+              <View
+                style={[
+                  styles.iconCircle,
+                  {backgroundColor: colors.primary + '20'},
+                ]}>
+                <Icon name="account-music" size={22} color={colors.primary} />
               </View>
               <View style={styles.optionText}>
-                <Text style={styles.optionTitle}>Xem nghệ sĩ</Text>
-                <Text style={styles.optionSub}>Đến trang nghệ sĩ</Text>
+                <Text style={[styles.optionTitle, {color: colors.text}]}>
+                  Xem nghệ sĩ
+                </Text>
+                <Text style={[styles.optionSub, {color: colors.textSecondary}]}>
+                  Đến trang nghệ sĩ
+                </Text>
               </View>
             </TouchableOpacity>
           )}

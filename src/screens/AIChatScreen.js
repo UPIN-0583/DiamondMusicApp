@@ -23,18 +23,21 @@ import SongItem from '../components/SongItem';
 import SongOptionsModal from '../components/SongOptionsModal';
 import CreatePlaylistModal from '../components/CreatePlaylistModal';
 import PlaylistSelectModal from '../components/PlaylistSelectModal';
+import MiniPlayer from '../components/MiniPlayer';
 import {
   fetchUserPlaylists,
   addSongToPlaylistThunk,
 } from '../redux/slices/musicSlice';
 import {toggleLikeSong} from '../redux/slices/authSlice';
+import {useTheme} from '../themes/ThemeContext';
 
 const {width} = Dimensions.get('window');
 
 const AIChatScreen = ({navigation}) => {
   const dispatch = useDispatch();
+  const {colors} = useTheme();
   const {token, likedSongs} = useSelector(state => state.auth);
-  const {userPlaylists} = useSelector(state => state.music);
+  const {userPlaylists, artists} = useSelector(state => state.music);
 
   // Chat state
   const [messages, setMessages] = useState([
@@ -218,11 +221,15 @@ const AIChatScreen = ({navigation}) => {
   const handleViewArtist = () => {
     if (!selectedSong) return;
     setOptionsModalVisible(false);
+    // Tìm ảnh nghệ sĩ đúng từ danh sách artists
+    const artistData = artists.find(
+      a => a.id?.toString() === selectedSong.artistId?.toString(),
+    );
     navigation.navigate('ArtistDetail', {
       artist: {
         id: selectedSong.artistId,
         name: selectedSong.artist,
-        image: selectedSong.artwork,
+        image: artistData?.image || selectedSong.artwork,
       },
     });
   };
@@ -275,17 +282,24 @@ const AIChatScreen = ({navigation}) => {
           isUser ? styles.userMessageContainer : styles.botMessageContainer,
         ]}>
         {!isUser && (
-          <View style={styles.botAvatar}>
-            <Icon name="robot" size={20} color="#2196F3" />
+          <View
+            style={[styles.botAvatar, {backgroundColor: colors.primaryLight}]}>
+            <Icon name="robot" size={20} color={colors.primary} />
           </View>
         )}
 
         <View
           style={[
             styles.messageBubble,
-            isUser ? styles.userBubble : styles.botBubble,
+            isUser
+              ? [styles.userBubble, {backgroundColor: colors.primary}]
+              : [styles.botBubble, {backgroundColor: colors.card}],
           ]}>
-          <Text style={[styles.messageText, isUser && styles.userMessageText]}>
+          <Text
+            style={[
+              styles.messageText,
+              isUser ? styles.userMessageText : {color: colors.text},
+            ]}>
             {item.text}
           </Text>
 
@@ -293,8 +307,15 @@ const AIChatScreen = ({navigation}) => {
           {item.genres && item.genres.length > 0 && (
             <View style={styles.genresContainer}>
               {item.genres.map((genre, index) => (
-                <View key={index} style={styles.genrePill}>
-                  <Text style={styles.genreText}>{genre}</Text>
+                <View
+                  key={index}
+                  style={[
+                    styles.genrePill,
+                    {backgroundColor: colors.primaryLight},
+                  ]}>
+                  <Text style={[styles.genreText, {color: colors.primary}]}>
+                    {genre}
+                  </Text>
                 </View>
               ))}
             </View>
@@ -302,19 +323,34 @@ const AIChatScreen = ({navigation}) => {
 
           {/* Songs list */}
           {item.songs && item.songs.length > 0 && (
-            <View style={styles.songsContainer}>
+            <View
+              style={[
+                styles.songsContainer,
+                {
+                  borderTopColor: colors.border,
+                  backgroundColor: colors.surfaceVariant,
+                },
+              ]}>
               <View style={styles.songsHeader}>
-                <Text style={styles.songsTitle}>
+                <Text style={[styles.songsTitle, {color: colors.text}]}>
                   🎵 {item.totalSongs} bài hát gợi ý
                 </Text>
                 <TouchableOpacity
-                  style={styles.createPlaylistBtn}
+                  style={[
+                    styles.createPlaylistBtn,
+                    {backgroundColor: colors.primaryLight},
+                  ]}
                   onPress={() => handleCreatePlaylistFromRecommend(item.songs)}>
-                  <Icon name="playlist-plus" size={18} color="#2196F3" />
-                  <Text style={styles.createPlaylistText}>Tạo playlist</Text>
+                  <Icon name="playlist-plus" size={18} color={colors.primary} />
+                  <Text
+                    style={[
+                      styles.createPlaylistText,
+                      {color: colors.primary},
+                    ]}>
+                    Tạo playlist
+                  </Text>
                 </TouchableOpacity>
               </View>
-
               {item.songs.slice(0, 5).map((song, index) => (
                 <SongItem
                   key={song.id}
@@ -324,10 +360,9 @@ const AIChatScreen = ({navigation}) => {
                   }}
                   onPress={() => handlePlaySong(song, item.songs)}
                   onOptionsPress={() => handleOpenOptions(song)}
-                  style={styles.songItem}
+                  style={[styles.songItem, {backgroundColor: colors.card}]}
                 />
               ))}
-
               {item.songs.length > 5 && (
                 <TouchableOpacity
                   style={styles.viewMoreBtn}
@@ -337,10 +372,10 @@ const AIChatScreen = ({navigation}) => {
                       genres: item.genres,
                     })
                   }>
-                  <Text style={styles.viewMoreText}>
+                  <Text style={[styles.viewMoreText, {color: colors.primary}]}>
                     Xem tất cả {item.songs.length} bài hát
                   </Text>
-                  <Icon name="chevron-right" size={18} color="#2196F3" />
+                  <Icon name="chevron-right" size={18} color={colors.primary} />
                 </TouchableOpacity>
               )}
             </View>
@@ -351,10 +386,11 @@ const AIChatScreen = ({navigation}) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, {backgroundColor: colors.background}]}>
       {/* Header */}
       <LinearGradient
-        colors={['#2196F3', '#1976D2']}
+        colors={[colors.primary, colors.primaryDark || colors.primary]}
         style={styles.header}
         start={{x: 0, y: 0}}
         end={{x: 1, y: 1}}>
@@ -390,12 +426,16 @@ const AIChatScreen = ({navigation}) => {
       {/* Loading indicator */}
       {isLoading && (
         <View style={styles.loadingContainer}>
-          <View style={styles.botAvatar}>
-            <Icon name="robot" size={20} color="#2196F3" />
+          <View
+            style={[styles.botAvatar, {backgroundColor: colors.primaryLight}]}>
+            <Icon name="robot" size={20} color={colors.primary} />
           </View>
-          <View style={styles.typingIndicator}>
-            <ActivityIndicator size="small" color="#2196F3" />
-            <Text style={styles.typingText}>AI đang suy nghĩ...</Text>
+          <View
+            style={[styles.typingIndicator, {backgroundColor: colors.card}]}>
+            <ActivityIndicator size="small" color={colors.primary} />
+            <Text style={[styles.typingText, {color: colors.textSecondary}]}>
+              AI đang suy nghĩ...
+            </Text>
           </View>
         </View>
       )}
@@ -404,11 +444,18 @@ const AIChatScreen = ({navigation}) => {
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}>
-        <View style={styles.inputContainer}>
+        <View
+          style={[
+            styles.inputContainer,
+            {backgroundColor: colors.card, borderTopColor: colors.border},
+          ]}>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              {backgroundColor: colors.inputBackground, color: colors.text},
+            ]}
             placeholder="Nhập tâm trạng hoặc yêu cầu của bạn..."
-            placeholderTextColor="#999"
+            placeholderTextColor={colors.placeholder}
             value={inputText}
             onChangeText={setInputText}
             multiline
@@ -417,6 +464,7 @@ const AIChatScreen = ({navigation}) => {
           <TouchableOpacity
             style={[
               styles.sendBtn,
+              {backgroundColor: colors.primary},
               (!inputText.trim() || isLoading) && styles.sendBtnDisabled,
             ]}
             onPress={sendMessage}
@@ -424,7 +472,9 @@ const AIChatScreen = ({navigation}) => {
             <Icon
               name="send"
               size={22}
-              color={inputText.trim() && !isLoading ? '#fff' : '#ccc'}
+              color={
+                inputText.trim() && !isLoading ? '#fff' : colors.textTertiary
+              }
             />
           </TouchableOpacity>
         </View>
@@ -464,6 +514,8 @@ const AIChatScreen = ({navigation}) => {
         buttonText="Tạo playlist"
         iconName="playlist-star"
       />
+
+      <MiniPlayer />
     </SafeAreaView>
   );
 };
@@ -661,6 +713,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderTopWidth: 1,
     borderTopColor: '#f0f0f0',
+    marginBottom: 70,
   },
   input: {
     flex: 1,

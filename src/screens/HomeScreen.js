@@ -28,6 +28,7 @@ import VoiceSearchModal from '../components/VoiceSearchModal';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import LinearGradient from 'react-native-linear-gradient';
 import SearchScreen from './SearchScreen';
+import {useTheme} from '../themes/ThemeContext';
 
 const {width} = Dimensions.get('window');
 const CARD_WIDTH = width * 0.45;
@@ -35,6 +36,7 @@ const CARD_WIDTH = width * 0.45;
 const HomeScreen = ({navigation}) => {
   const {trackList, setCurrentTrackIndex, setTrackList} = usePlayerStore();
   const dispatch = useDispatch();
+  const {colors} = useTheme();
   const {
     songs,
     artists,
@@ -124,23 +126,27 @@ const HomeScreen = ({navigation}) => {
       }),
     )
       .unwrap()
-      .then(() => Alert.alert('Success', 'Added to playlist'))
-      .catch(err => Alert.alert('Error', err));
+      .then(() => Alert.alert('Thành công', 'Đã thêm vào playlist'))
+      .catch(err => Alert.alert('Lỗi', err));
     setPlaylistModalVisible(false);
   };
 
   const handleViewArtist = () => {
     setOptionsModalVisible(false);
     if (selectedSong?.artistId) {
+      // Tìm ảnh nghệ sĩ đúng từ danh sách artists
+      const artistData = artists.find(
+        a => a.id?.toString() === selectedSong.artistId?.toString(),
+      );
       navigation.getParent().navigate('ArtistDetail', {
         artist: {
           id: selectedSong.artistId,
           name: selectedSong.artist,
-          image: selectedSong.artwork,
+          image: artistData?.image || selectedSong.artwork,
         },
       });
     } else {
-      Alert.alert('Info', 'Artist info unavailable');
+      Alert.alert('Thông báo', 'Không có thông tin nghệ sĩ');
     }
   };
 
@@ -229,10 +235,14 @@ const HomeScreen = ({navigation}) => {
         navigation.getParent().navigate('PlaylistDetail', {playlist: item})
       }>
       <Image source={{uri: item.image}} style={styles.playlistImage} />
-      <Text style={styles.playlistName} numberOfLines={1}>
+      <Text
+        style={[styles.playlistName, {color: colors.text}]}
+        numberOfLines={1}>
         {item.name}
       </Text>
-      <Text style={styles.playlistCategory} numberOfLines={1}>
+      <Text
+        style={[styles.playlistCategory, {color: colors.text}]}
+        numberOfLines={1}>
         {item.category}
       </Text>
     </TouchableOpacity>
@@ -246,24 +256,30 @@ const HomeScreen = ({navigation}) => {
         navigation.getParent().navigate('ArtistDetail', {artist: item})
       }>
       <Image source={{uri: item.image}} style={styles.artistImage} />
-      <Text style={styles.artistName} numberOfLines={1}>
+      <Text style={[styles.artistName, {color: colors.text}]} numberOfLines={1}>
         {item.name}
       </Text>
     </TouchableOpacity>
   );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: colors.background}]}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}>
         {/* Search Bar - Navigate to Search Screen */}
         <View style={styles.searchContainer}>
           <TouchableOpacity
-            style={styles.searchBar}
+            style={[
+              styles.searchBar,
+              {backgroundColor: colors.inputBackground},
+            ]}
             onPress={() => navigation.getParent().navigate('SearchScreen')}>
-            <Icon name="magnify" size={22} color="#999" />
-            <Text style={styles.searchPlaceholder}>Tìm kiếm</Text>
+            <Icon name="magnify" size={22} color={colors.placeholder} />
+            <Text
+              style={[styles.searchPlaceholder, {color: colors.placeholder}]}>
+              Tìm kiếm
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.aiButton}
@@ -280,7 +296,9 @@ const HomeScreen = ({navigation}) => {
         {/* Trending Songs */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Nhạc thịnh hành</Text>
+            <Text style={[styles.sectionTitle, {color: colors.text}]}>
+              Nhạc thịnh hành
+            </Text>
           </View>
           <ScrollView
             horizontal
@@ -295,10 +313,14 @@ const HomeScreen = ({navigation}) => {
         {/* Top Playlists */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Playlist nổi bật</Text>
+            <Text style={[styles.sectionTitle, {color: colors.text}]}>
+              Playlist nổi bật
+            </Text>
             <TouchableOpacity
               onPress={() => navigation.getParent().navigate('TopPlaylists')}>
-              <Text style={styles.seeAll}>Xem tất cả</Text>
+              <Text style={[styles.seeAll, {color: colors.primary}]}>
+                Xem tất cả
+              </Text>
             </TouchableOpacity>
           </View>
           <ScrollView
@@ -312,12 +334,16 @@ const HomeScreen = ({navigation}) => {
         {/* Favourite Artists */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Nghệ sĩ yêu thích</Text>
+            <Text style={[styles.sectionTitle, {color: colors.text}]}>
+              Nghệ sĩ yêu thích
+            </Text>
             <TouchableOpacity
               onPress={() =>
                 navigation.getParent().navigate('FavouriteArtists')
               }>
-              <Text style={styles.seeAll}>Xem tất cả</Text>
+              <Text style={[styles.seeAll, {color: colors.primary}]}>
+                Xem tất cả
+              </Text>
             </TouchableOpacity>
           </View>
           <ScrollView
@@ -331,10 +357,14 @@ const HomeScreen = ({navigation}) => {
         {/* Popular Songs - Using SongItem Component */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Bài hát phổ biến</Text>
+            <Text style={[styles.sectionTitle, {color: colors.text}]}>
+              Bài hát phổ biến
+            </Text>
             <TouchableOpacity
               onPress={() => navigation.getParent().navigate('PopularSongs')}>
-              <Text style={styles.seeAll}>Xem tất cả</Text>
+              <Text style={[styles.seeAll, {color: colors.primary}]}>
+                Xem tất cả
+              </Text>
             </TouchableOpacity>
           </View>
           <View style={styles.popularSongsList}>
@@ -478,10 +508,9 @@ const styles = StyleSheet.create({
   playlistName: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#222',
     marginBottom: 2,
   },
-  playlistCategory: {fontSize: 12, color: '#888'},
+  playlistCategory: {fontSize: 12},
 
   // Artists
   artistCard: {alignItems: 'center', marginRight: 20},

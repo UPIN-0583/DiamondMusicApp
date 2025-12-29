@@ -14,23 +14,27 @@ import LinearGradient from 'react-native-linear-gradient';
 import {useSelector, useDispatch} from 'react-redux';
 import TrackPlayer from 'react-native-track-player';
 
+import {usePlayerStore} from '../store/usePlayerStore';
+import {useTheme} from '../themes/ThemeContext';
+import {
+  fetchUserPlaylists,
+  addSongToPlaylistThunk,
+} from '../redux/slices/musicSlice';
+import {createPlaylistWithSongs} from '../services/api';
+import {toggleLikeSong} from '../redux/slices/authSlice';
 import SongItem from '../components/SongItem';
 import SongOptionsModal from '../components/SongOptionsModal';
 import CreatePlaylistModal from '../components/CreatePlaylistModal';
 import PlaylistSelectModal from '../components/PlaylistSelectModal';
 import MiniPlayer from '../components/MiniPlayer';
-import {
-  fetchUserPlaylists,
-  addSongToPlaylistThunk,
-} from '../redux/slices/musicSlice';
-import {toggleLikeSong} from '../redux/slices/authSlice';
-import {createPlaylistWithSongs} from '../services/api';
-import {useTheme} from '../themes/ThemeContext';
 
 const RecommendedSongsScreen = ({navigation, route}) => {
   const {songs = [], genres = []} = route.params || {};
   const dispatch = useDispatch();
   const {colors} = useTheme();
+  // Get playFromQueue from store
+  const {playFromQueue} = usePlayerStore();
+
   const {token, likedSongs} = useSelector(state => state.auth);
   const {userPlaylists, artists} = useSelector(state => state.music);
 
@@ -50,6 +54,7 @@ const RecommendedSongsScreen = ({navigation, route}) => {
 
   const handlePlaySong = async song => {
     try {
+      // Create queue with standard format
       const queue = songs.map(s => ({
         id: s.id,
         url: s.url,
@@ -60,12 +65,7 @@ const RecommendedSongsScreen = ({navigation, route}) => {
       }));
 
       const songIndex = songs.findIndex(s => s.id === song.id);
-
-      await TrackPlayer.reset();
-      await TrackPlayer.add(queue);
-      await TrackPlayer.skip(songIndex);
-      await TrackPlayer.play();
-
+      await playFromQueue(queue, songIndex !== -1 ? songIndex : 0);
       navigation.navigate('Player');
     } catch (error) {
       console.error('Error playing song:', error);
@@ -86,10 +86,7 @@ const RecommendedSongsScreen = ({navigation, route}) => {
         artwork: s.artwork,
       }));
 
-      await TrackPlayer.reset();
-      await TrackPlayer.add(queue);
-      await TrackPlayer.play();
-
+      await playFromQueue(queue, 0);
       navigation.navigate('Player');
     } catch (error) {
       console.error('Error playing all:', error);

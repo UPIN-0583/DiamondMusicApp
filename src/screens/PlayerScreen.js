@@ -48,28 +48,41 @@ const PlayerScreen = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const {colors} = useTheme();
-  const {trackList, currentTrackIndex, setTrackList} = usePlayerStore();
+  // Get state and actions from Zustand store
+  const {
+    playerState,
+    isShuffle,
+    repeatMode,
+    playbackSpeed,
+    currentTrack,
+    trackTitle,
+    trackArtist,
+    trackArtwork,
+    togglePlayback,
+    skipToNext,
+    skipToPrevious,
+    toggleShuffle,
+    cycleRepeatMode,
+    setPlaybackSpeed: setSpeed,
+    seekTo,
+    setPlayerState,
+    updateCurrentTrack,
+    loadTrackInfo,
+  } = usePlayerStore();
 
   const {token, likedSongs} = useSelector(state => state.auth);
   const {userPlaylists, artists} = useSelector(state => state.music);
 
-  const [trackTitle, setTrackTitle] = useState('');
-  const [trackArtist, setTrackArtist] = useState('');
-  const [trackArtwork, setTrackArtwork] = useState('');
-  const [currentTrack, setCurrentTrack] = useState(null);
-  const [playerState, setPlayerState] = useState(State.None);
-
-  const [isShuffle, setIsShuffle] = useState(false);
-  const [repeatMode, setRepeatMode] = useState(0);
-  const [playbackSpeed, setPlaybackSpeed] = useState(1);
-
+  // Modal states only
   const [speedModalVisible, setSpeedModalVisible] = useState(false);
   const [headerMenuVisible, setHeaderMenuVisible] = useState(false);
   const [addToPlaylistModalVisible, setAddToPlaylistModalVisible] =
     useState(false);
 
   const progress = useProgress();
-  const isPlaying = playerState === State.Playing;
+  // isPlaying includes Buffering for optimistic updates from playFromQueue
+  const isPlaying =
+    playerState === State.Playing || playerState === State.Buffering;
 
   const isLiked =
     currentTrack &&
@@ -79,77 +92,18 @@ const PlayerScreen = () => {
         (currentTrack.id || currentTrack.song_id)?.toString(),
     );
 
-  useTrackPlayerEvents([Event.PlaybackState, Event.PlaybackError], event => {
-    if (event.type === Event.PlaybackState) setPlayerState(event.state);
-  });
+  // Event listeners removed - handled centrally in MiniPlayer to avoid duplicate updates
 
-  useTrackPlayerEvents([Event.PlaybackActiveTrackChanged], async event => {
-    if (event.type === Event.PlaybackActiveTrackChanged && event.track) {
-      setTrackTitle(event.track.title);
-      setTrackArtist(event.track.artist);
-      setTrackArtwork(event.track.artwork);
-      setCurrentTrack(event.track);
-    }
-  });
-
-  useEffect(() => {
-    const loadTrackInfo = async () => {
-      const track = await TrackPlayer.getActiveTrack();
-      if (track) {
-        setTrackTitle(track.title);
-        setTrackArtist(track.artist);
-        setTrackArtwork(track.artwork);
-        setCurrentTrack(track);
-      }
-      // Also load current playback state
-      const state = await TrackPlayer.getPlaybackState();
-      setPlayerState(state.state);
-    };
-    loadTrackInfo();
-  }, []);
-
-  useEffect(() => {
-    const applyRepeatMode = async () => {
-      const modes = [RepeatMode.Off, RepeatMode.Queue, RepeatMode.Track];
-      await TrackPlayer.setRepeatMode(modes[repeatMode]);
-    };
-    applyRepeatMode();
-  }, [repeatMode]);
-
-  const togglePlayback = async () => {
-    const idx = await TrackPlayer.getActiveTrackIndex();
-    if (idx != null) {
-      if (playerState === State.Paused || playerState === State.Ready) {
-        await TrackPlayer.play();
-      } else {
-        await TrackPlayer.pause();
-      }
-    }
-  };
-
-  const skipToNext = async () => {
-    if (isShuffle) {
-      const queue = await TrackPlayer.getQueue();
-      const currentIdx = await TrackPlayer.getActiveTrackIndex();
-      if (queue.length > 1) {
-        let randomIdx;
-        do {
-          randomIdx = Math.floor(Math.random() * queue.length);
-        } while (randomIdx === currentIdx);
-        await TrackPlayer.skip(randomIdx);
-      }
-    } else {
-      await TrackPlayer.skipToNext();
-    }
-  };
-
-  const skipToPrevious = async () => await TrackPlayer.skipToPrevious();
-  const handleShuffle = () => setIsShuffle(!isShuffle);
-
+  // Handle speed change
   const handleSpeedChange = async speed => {
-    await TrackPlayer.setRate(speed);
-    setPlaybackSpeed(speed);
+    await setSpeed(speed);
     setSpeedModalVisible(false);
+  };
+
+  // Handle repeat mode cycle
+  const handleRepeatCycle = async () => {
+    const newMode = await cycleRepeatMode();
+    Alert.alert('Lặp lại', REPEAT_LABELS[newMode]);
   };
 
   const handleLikeSong = () => {
@@ -293,7 +247,7 @@ const PlayerScreen = () => {
           maximumTrackTintColor={colors.border}
           thumbStyle={styles.thumbStyle}
           trackStyle={styles.trackStyle}
-          onSlidingComplete={async v => await TrackPlayer.seekTo(v[0])}
+          onSlidingComplete={async v => await seekTo(v[0])}
         />
         <View style={styles.timeContainer}>
           <Text style={[styles.timeText, {color: colors.textSecondary}]}>
@@ -310,7 +264,7 @@ const PlayerScreen = () => {
 
       {/* Controls */}
       <View style={styles.controlsContainer}>
-        <TouchableOpacity onPress={handleShuffle} style={styles.sideButton}>
+        <TouchableOpacity onPress={toggleShuffle} style={styles.sideButton}>
           <Icon
             name="shuffle-variant"
             size={24}
@@ -328,13 +282,7 @@ const PlayerScreen = () => {
         <TouchableOpacity onPress={skipToNext} style={styles.controlButton}>
           <Icon name="skip-next" size={35} color={colors.text} />
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => {
-            const newMode = (repeatMode + 1) % 3;
-            setRepeatMode(newMode);
-            Alert.alert('Lặp lại', REPEAT_LABELS[newMode]);
-          }}
-          style={styles.sideButton}>
+        <TouchableOpacity onPress={handleRepeatCycle} style={styles.sideButton}>
           <Icon
             name={getRepeatIcon()}
             size={24}

@@ -5,17 +5,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import PlayerScreen from '../screens/PlayerScreen';
-import PopularSongsScreen from '../screens/PopularSongsScreen';
-import FavouriteArtistsScreen from '../screens/FavouriteArtistsScreen';
-import TopPlaylistsScreen from '../screens/TopPlaylistsScreen';
-import PlaylistDetailScreen from '../screens/PlaylistDetailScreen';
 import ArtistDetailScreen from '../screens/ArtistDetailScreen';
-import SearchScreen from '../screens/SearchScreen';
-import NotificationSettingsScreen from '../screens/NotificationSettingsScreen';
-import ChangePasswordScreen from '../screens/ChangePasswordScreen';
-import ThemeSettingsScreen from '../screens/ThemeSettingsScreen';
-import AIChatScreen from '../screens/AIChatScreen';
-import RecommendedSongsScreen from '../screens/RecommendedSongsScreen';
 
 // Navigators
 import BottomTabNavigator from './BottomTabNavigator';
@@ -37,36 +27,13 @@ const AppNavigator = () => {
       {/* Main App */}
       <Stack.Screen name="Main" component={BottomTabNavigator} />
 
-      {/* Feature Screens */}
+      {/* Shared/Global Screens */}
       <Stack.Screen
         name="Player"
         component={PlayerScreen}
         options={{animation: 'slide_from_bottom'}}
       />
-      <Stack.Screen name="PopularSongs" component={PopularSongsScreen} />
-      <Stack.Screen
-        name="FavouriteArtists"
-        component={FavouriteArtistsScreen}
-      />
-      <Stack.Screen name="TopPlaylists" component={TopPlaylistsScreen} />
-      <Stack.Screen name="PlaylistDetail" component={PlaylistDetailScreen} />
       <Stack.Screen name="ArtistDetail" component={ArtistDetailScreen} />
-      <Stack.Screen name="SearchScreen" component={SearchScreen} />
-
-      {/* AI Chat Screens */}
-      <Stack.Screen name="AIChat" component={AIChatScreen} />
-      <Stack.Screen
-        name="RecommendedSongs"
-        component={RecommendedSongsScreen}
-      />
-
-      {/* Settings Screens */}
-      <Stack.Screen
-        name="NotificationSettings"
-        component={NotificationSettingsScreen}
-      />
-      <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
-      <Stack.Screen name="ThemeSettings" component={ThemeSettingsScreen} />
     </Stack.Navigator>
   );
 };

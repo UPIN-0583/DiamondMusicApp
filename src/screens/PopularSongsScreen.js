@@ -29,7 +29,7 @@ const PopularSongsScreen = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const {colors} = useTheme();
-  const {setTrackList, setCurrentTrackIndex} = usePlayerStore();
+  const {playFromQueue} = usePlayerStore();
   const {token, likedSongs} = useSelector(state => state.auth);
   const {userPlaylists, songs, artists} = useSelector(state => state.music);
 
@@ -47,13 +47,7 @@ const PopularSongsScreen = () => {
   );
 
   const handlePlayTrack = async index => {
-    // Set the songs list to player and play from that index
-    setTrackList(songs);
-    setCurrentTrackIndex(index);
-    await TrackPlayer.reset();
-    await TrackPlayer.add(songs);
-    await TrackPlayer.skip(index);
-    await TrackPlayer.play();
+    await playFromQueue(songs, index);
     navigation.navigate('Player');
   };
 

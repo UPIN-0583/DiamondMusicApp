@@ -47,7 +47,7 @@ const PlaylistDetailScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const {colors} = useTheme();
-  const {setTrackList, setCurrentTrackIndex} = usePlayerStore();
+  const {playFromQueue} = usePlayerStore();
   const dispatch = useDispatch();
 
   const {token, likedSongs} = useSelector(state => state.auth);
@@ -192,33 +192,20 @@ const PlaylistDetailScreen = () => {
 
   // Playback Handlers
   const handlePlayTrack = async index => {
-    setTrackList(playlistSongs);
-    setCurrentTrackIndex(index);
-    await TrackPlayer.reset();
-    await TrackPlayer.add(playlistSongs);
-    await TrackPlayer.skip(index);
-    await TrackPlayer.play();
+    await playFromQueue(playlistSongs, index);
     navigation.navigate('Player');
   };
 
   const handlePlayAll = async () => {
     if (playlistSongs.length === 0) return;
-    setTrackList(playlistSongs);
-    await TrackPlayer.reset();
-    await TrackPlayer.add(playlistSongs);
-    await TrackPlayer.skip(0);
-    await TrackPlayer.play();
+    await playFromQueue(playlistSongs, 0);
     navigation.navigate('Player');
   };
 
   const handleShuffle = async () => {
     if (playlistSongs.length === 0) return;
     const shuffled = [...playlistSongs].sort(() => Math.random() - 0.5);
-    setTrackList(shuffled);
-    await TrackPlayer.reset();
-    await TrackPlayer.add(shuffled);
-    await TrackPlayer.skip(0);
-    await TrackPlayer.play();
+    await playFromQueue(shuffled, 0);
     navigation.navigate('Player');
   };
 

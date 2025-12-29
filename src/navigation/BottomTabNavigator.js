@@ -3,14 +3,54 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {Platform} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useTheme} from '../themes/ThemeContext';
+import {getFocusedRouteNameFromRoute} from '@react-navigation/native';
 
-// Import screens
-import HomeScreen from '../screens/HomeScreen';
+// Import Stack Navigators
+import HomeStackNavigator from './HomeStackNavigator';
 import FavouritesScreen from '../screens/FavouritesScreen';
-import PlaylistScreen from '../screens/PlaylistScreen';
-import AccountScreen from '../screens/AccountScreen';
+import PlaylistStackNavigator from './PlaylistStackNavigator';
+import AccountStackNavigator from './AccountStackNavigator';
 
 const Tab = createBottomTabNavigator();
+
+// Helper to hide tab bar on nested screens
+const getTabBarVisibility = (route, colors) => {
+  const routeName = getFocusedRouteNameFromRoute(route);
+
+  // Screens where tab bar should be hidden
+  const hideOnScreens = [
+    // Home Stack screens
+    'TopPlaylists',
+    'PopularSongs',
+    'FavouriteArtists',
+    'SearchScreen',
+    'AIChat',
+    'RecommendedSongs',
+    'PlaylistDetail',
+    // Account Stack screens
+    'ThemeSettings',
+    'NotificationSettings',
+    'ChangePassword',
+  ];
+
+  if (hideOnScreens.includes(routeName)) {
+    return {display: 'none'};
+  }
+
+  return {
+    height: Platform.OS === 'ios' ? 85 : 65,
+    paddingBottom: Platform.OS === 'ios' ? 25 : 10,
+    paddingTop: 8,
+    backgroundColor: colors.card,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: -2},
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+  };
+};
 
 const BottomTabNavigator = () => {
   const {colors} = useTheme();
@@ -35,19 +75,6 @@ const BottomTabNavigator = () => {
         },
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textTertiary,
-        tabBarStyle: {
-          height: Platform.OS === 'ios' ? 85 : 65,
-          paddingBottom: Platform.OS === 'ios' ? 25 : 10,
-          paddingTop: 8,
-          backgroundColor: colors.card,
-          borderTopWidth: 1,
-          borderTopColor: colors.border,
-          elevation: 8,
-          shadowColor: '#000',
-          shadowOffset: {width: 0, height: -2},
-          shadowOpacity: 0.1,
-          shadowRadius: 8,
-        },
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: '600',
@@ -56,23 +83,47 @@ const BottomTabNavigator = () => {
       })}>
       <Tab.Screen
         name="HomePage"
-        component={HomeScreen}
-        options={{tabBarLabel: 'Trang chủ'}}
+        component={HomeStackNavigator}
+        options={({route}) => ({
+          tabBarLabel: 'Trang chủ',
+          tabBarStyle: getTabBarVisibility(route, colors),
+        })}
       />
       <Tab.Screen
         name="Favourites"
         component={FavouritesScreen}
-        options={{tabBarLabel: 'Yêu thích'}}
+        options={{
+          tabBarLabel: 'Yêu thích',
+          tabBarStyle: {
+            height: Platform.OS === 'ios' ? 85 : 65,
+            paddingBottom: Platform.OS === 'ios' ? 25 : 10,
+            paddingTop: 8,
+            backgroundColor: colors.card,
+            borderTopWidth: 1,
+            borderTopColor: colors.border,
+            elevation: 8,
+            shadowColor: '#000',
+            shadowOffset: {width: 0, height: -2},
+            shadowOpacity: 0.1,
+            shadowRadius: 8,
+          },
+        }}
       />
       <Tab.Screen
         name="Playlist"
-        component={PlaylistScreen}
-        options={{tabBarLabel: 'Playlist'}}
+        component={PlaylistStackNavigator}
+        options={({route}) => ({
+          tabBarLabel: 'Playlist',
+          tabBarStyle: getTabBarVisibility(route, colors),
+        })}
       />
       <Tab.Screen
         name="Account"
-        component={AccountScreen}
-        options={{tabBarLabel: 'Tài khoản'}}
+        component={AccountStackNavigator}
+        options={({route}) => ({
+          tabBarLabel: 'Tài khoản',
+          tabBarStyle: getTabBarVisibility(route, colors),
+        })}
       />
     </Tab.Navigator>
   );

@@ -22,7 +22,7 @@ const SearchScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const {colors} = useTheme();
-  const {trackList, setCurrentTrackIndex, setTrackList} = usePlayerStore();
+  const {trackList, playFromQueue} = usePlayerStore();
   const {artists} = useSelector(state => state.music);
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -78,11 +78,7 @@ const SearchScreen = () => {
   }, [searchQuery, activeFilter, handleLyricsSearch]);
 
   const handlePlayTrack = async index => {
-    setCurrentTrackIndex(index);
-    await TrackPlayer.reset();
-    await TrackPlayer.add(trackList);
-    await TrackPlayer.skip(index);
-    await TrackPlayer.play();
+    await playFromQueue(trackList, index);
     navigation.navigate('Player');
   };
 

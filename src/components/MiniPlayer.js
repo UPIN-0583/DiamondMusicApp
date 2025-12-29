@@ -1,6 +1,6 @@
-import React, {useState, useEffect} from 'react';
+import React, {useEffect} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity, Image} from 'react-native';
-import TrackPlayer, {
+import {
   useTrackPlayerEvents,
   Event,
   State,
@@ -9,82 +9,56 @@ import TrackPlayer, {
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useNavigation} from '@react-navigation/native';
 import {useTheme} from '../themes/ThemeContext';
+import {usePlayerStore} from '../store/usePlayerStore';
 
 const MiniPlayer = () => {
   const navigation = useNavigation();
   const {colors} = useTheme();
-  const [playerState, setPlayerState] = useState(State.None);
-  const [trackTitle, setTrackTitle] = useState('');
-  const [trackArtist, setTrackArtist] = useState('');
-  const [trackArtwork, setTrackArtwork] = useState('');
-  const [hasActiveTrack, setHasActiveTrack] = useState(false);
+
+  // Get state and actions from Zustand store
+  const {
+    playerState,
+    trackTitle,
+    trackArtist,
+    trackArtwork,
+    togglePlayback,
+    skipToNext,
+    skipToPrevious,
+    setPlayerState,
+    updateCurrentTrack,
+    loadTrackInfo,
+  } = usePlayerStore();
 
   const progress = useProgress();
-  const isPlaying = playerState === State.Playing;
+  const isPlaying =
+    playerState === State.Playing || playerState === State.Buffering;
 
-  useTrackPlayerEvents(
-    [Event.PlaybackState, Event.PlaybackActiveTrackChanged],
-    async event => {
-      if (event.type === Event.PlaybackState) {
+  // Sync TrackPlayer events with Zustand
+  // Only update on stable states to prevent flickering during track transitions
+  useTrackPlayerEvents([Event.PlaybackState], event => {
+    if (event.type === Event.PlaybackState) {
+      const stableStates = [
+        State.Playing,
+        State.Paused,
+        State.Stopped,
+        State.None,
+      ];
+      if (stableStates.includes(event.state)) {
         setPlayerState(event.state);
       }
-      if (event.type === Event.PlaybackActiveTrackChanged) {
-        if (event.track) {
-          setTrackTitle(event.track.title);
-          setTrackArtist(event.track.artist);
-          setTrackArtwork(event.track.artwork);
-          setHasActiveTrack(true);
-        } else {
-          setHasActiveTrack(false);
-        }
-      }
-    },
-  );
-
-  // Load track info khi component mount - quan trọng để detect nhạc đang phát
-  useEffect(() => {
-    const loadTrackInfo = async () => {
-      try {
-        const track = await TrackPlayer.getActiveTrack();
-        if (track) {
-          setTrackTitle(track.title);
-          setTrackArtist(track.artist);
-          setTrackArtwork(track.artwork);
-          setHasActiveTrack(true);
-        } else {
-          setHasActiveTrack(false);
-        }
-
-        // Also get playback state
-        const state = await TrackPlayer.getPlaybackState();
-        if (state && state.state) {
-          setPlayerState(state.state);
-        }
-      } catch (error) {
-        console.log('MiniPlayer loadTrackInfo error:', error);
-        setHasActiveTrack(false);
-      }
-    };
-    loadTrackInfo();
-  }, []);
-
-  const togglePlayback = async () => {
-    if (playerState === State.Paused || playerState === State.Ready) {
-      await TrackPlayer.play();
-    } else {
-      await TrackPlayer.pause();
     }
-  };
+  });
 
-  const skipToNext = async () => {
-    await TrackPlayer.skipToNext();
-  };
+  useTrackPlayerEvents([Event.PlaybackActiveTrackChanged], async event => {
+    if (event.type === Event.PlaybackActiveTrackChanged && event.track) {
+      updateCurrentTrack(event.track);
+    }
+  });
 
-  const skipToPrevious = async () => {
-    await TrackPlayer.skipToPrevious();
-  };
+  // loadTrackInfo removed - state is managed by playFromQueue and events only
 
-  // Ẩn MiniPlayer nếu không có track active hoặc player đã dừng
+  // Hide MiniPlayer if no track active or player stopped
+  const hasActiveTrack = trackTitle !== '';
   if (
     !hasActiveTrack ||
     playerState === State.None ||

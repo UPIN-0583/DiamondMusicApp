@@ -34,7 +34,7 @@ const {width} = Dimensions.get('window');
 const CARD_WIDTH = width * 0.45;
 
 const HomeScreen = ({navigation}) => {
-  const {trackList, setCurrentTrackIndex, setTrackList} = usePlayerStore();
+  const {trackList, setTrackList, playFromQueue} = usePlayerStore();
   const dispatch = useDispatch();
   const {colors} = useTheme();
   const {
@@ -63,12 +63,9 @@ const HomeScreen = ({navigation}) => {
     }
   }, [songs, setTrackList]);
 
-  const handlePlayTrack = async index => {
-    setCurrentTrackIndex(index);
-    await TrackPlayer.reset();
-    await TrackPlayer.add(trackList);
-    await TrackPlayer.skip(index);
-    await TrackPlayer.play();
+  const handlePlayTrack = async song => {
+    const songIndex = songs.findIndex(s => s.id === song.id);
+    await playFromQueue(songs, songIndex !== -1 ? songIndex : 0);
     navigation.getParent().navigate('Player');
   };
 
@@ -231,9 +228,7 @@ const HomeScreen = ({navigation}) => {
     <TouchableOpacity
       key={item.id}
       style={styles.playlistCard}
-      onPress={() =>
-        navigation.getParent().navigate('PlaylistDetail', {playlist: item})
-      }>
+      onPress={() => navigation.navigate('PlaylistDetail', {playlist: item})}>
       <Image source={{uri: item.image}} style={styles.playlistImage} />
       <Text
         style={[styles.playlistName, {color: colors.text}]}
@@ -274,7 +269,7 @@ const HomeScreen = ({navigation}) => {
               styles.searchBar,
               {backgroundColor: colors.inputBackground},
             ]}
-            onPress={() => navigation.getParent().navigate('SearchScreen')}>
+            onPress={() => navigation.navigate('SearchScreen')}>
             <Icon name="magnify" size={22} color={colors.placeholder} />
             <Text
               style={[styles.searchPlaceholder, {color: colors.placeholder}]}>
@@ -283,7 +278,7 @@ const HomeScreen = ({navigation}) => {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.aiButton}
-            onPress={() => navigation.getParent().navigate('AIChat')}>
+            onPress={() => navigation.navigate('AIChat')}>
             <Icon name="robot-happy" size={22} color="#fff" />
           </TouchableOpacity>
           <TouchableOpacity
@@ -317,7 +312,7 @@ const HomeScreen = ({navigation}) => {
               Playlist nổi bật
             </Text>
             <TouchableOpacity
-              onPress={() => navigation.getParent().navigate('TopPlaylists')}>
+              onPress={() => navigation.navigate('TopPlaylists')}>
               <Text style={[styles.seeAll, {color: colors.primary}]}>
                 Xem tất cả
               </Text>
@@ -338,9 +333,7 @@ const HomeScreen = ({navigation}) => {
               Nghệ sĩ yêu thích
             </Text>
             <TouchableOpacity
-              onPress={() =>
-                navigation.getParent().navigate('FavouriteArtists')
-              }>
+              onPress={() => navigation.navigate('FavouriteArtists')}>
               <Text style={[styles.seeAll, {color: colors.primary}]}>
                 Xem tất cả
               </Text>
@@ -361,18 +354,18 @@ const HomeScreen = ({navigation}) => {
               Bài hát phổ biến
             </Text>
             <TouchableOpacity
-              onPress={() => navigation.getParent().navigate('PopularSongs')}>
+              onPress={() => navigation.navigate('PopularSongs')}>
               <Text style={[styles.seeAll, {color: colors.primary}]}>
                 Xem tất cả
               </Text>
             </TouchableOpacity>
           </View>
           <View style={styles.popularSongsList}>
-            {trackList.slice(0, 8).map((item, index) => (
+            {songs.slice(0, 8).map((item, index) => (
               <SongItem
                 key={item.id}
                 song={item}
-                onPress={() => handlePlayTrack(index)}
+                onPress={() => handlePlayTrack(item)}
                 onOptionsPress={handleOpenSongOptions}
               />
             ))}
@@ -408,7 +401,7 @@ const HomeScreen = ({navigation}) => {
         visible={voiceModalVisible}
         onClose={() => setVoiceModalVisible(false)}
         onResult={text => {
-          navigation.getParent().navigate('SearchScreen', {initialQuery: text});
+          navigation.navigate('SearchScreen', {initialQuery: text});
         }}
       />
     </View>

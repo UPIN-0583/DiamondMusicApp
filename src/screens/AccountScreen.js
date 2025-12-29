@@ -14,7 +14,6 @@ import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
 import {logout} from '../redux/slices/authSlice';
 import {getUserStats} from '../services/api';
-import TrackPlayer from 'react-native-track-player';
 import {usePlayerStore} from '../store/usePlayerStore';
 import {useTheme} from '../themes/ThemeContext';
 
@@ -23,7 +22,7 @@ const AccountScreen = () => {
   const navigation = useNavigation();
   const {colors} = useTheme();
   const {user, token} = useSelector(state => state.auth);
-  const {setTrackList, setCurrentTrackIndex} = usePlayerStore();
+  const {resetPlayer} = usePlayerStore();
 
   const [stats, setStats] = useState({
     likedSongsCount: 0,
@@ -57,15 +56,9 @@ const AccountScreen = () => {
         text: 'Đăng xuất',
         style: 'destructive',
         onPress: async () => {
-          // Dừng nhạc và xóa queue
-          try {
-            await TrackPlayer.reset();
-          } catch (e) {
-            console.log('TrackPlayer reset error:', e);
-          }
-          // Xóa player store
-          setTrackList([]);
-          setCurrentTrackIndex(0);
+          // Reset player state central
+          await resetPlayer();
+
           // Logout
           dispatch(logout());
           navigation.reset({
@@ -165,21 +158,19 @@ const AccountScreen = () => {
           icon="shield-account"
           title="Bảo mật"
           subtitle="Đổi mật khẩu"
-          onPress={() => navigation.getParent().navigate('ChangePassword')}
+          onPress={() => navigation.navigate('ChangePassword')}
         />
         <MenuItem
           icon="bell"
           title="Thông báo"
           subtitle="Quản lý thông báo"
-          onPress={() =>
-            navigation.getParent().navigate('NotificationSettings')
-          }
+          onPress={() => navigation.navigate('NotificationSettings')}
         />
         <MenuItem
           icon="palette"
           title="Giao diện"
           subtitle="Tùy chỉnh giao diện"
-          onPress={() => navigation.getParent().navigate('ThemeSettings')}
+          onPress={() => navigation.navigate('ThemeSettings')}
         />
       </View>
 

@@ -16,7 +16,7 @@ import {
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import LinearGradient from 'react-native-linear-gradient';
 import {useSelector, useDispatch} from 'react-redux';
-import TrackPlayer from 'react-native-track-player';
+import {usePlayerStore} from '../store/usePlayerStore';
 
 import {getAIRecommendations, createPlaylistWithSongs} from '../services/api';
 import SongItem from '../components/SongItem';
@@ -36,6 +36,7 @@ const {width} = Dimensions.get('window');
 const AIChatScreen = ({navigation}) => {
   const dispatch = useDispatch();
   const {colors} = useTheme();
+  const {playFromQueue} = usePlayerStore();
   const {token, likedSongs} = useSelector(state => state.auth);
   const {userPlaylists, artists} = useSelector(state => state.music);
 
@@ -149,12 +150,7 @@ const AIChatScreen = ({navigation}) => {
       }));
 
       const songIndex = songs.findIndex(s => s.id === song.id);
-
-      await TrackPlayer.reset();
-      await TrackPlayer.add(queue);
-      await TrackPlayer.skip(songIndex);
-      await TrackPlayer.play();
-
+      await playFromQueue(queue, songIndex !== -1 ? songIndex : 0);
       navigation.navigate('Player');
     } catch (error) {
       console.error('Error playing song:', error);

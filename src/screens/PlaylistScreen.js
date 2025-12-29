@@ -57,7 +57,7 @@ const PlaylistScreen = ({navigation}) => {
     <TouchableOpacity
       style={styles.playlistItem}
       onPress={() =>
-        navigation.getParent().navigate('PlaylistDetail', {
+        navigation.navigate('PlaylistDetail', {
           playlist: {
             id: item.playlist_id,
             name: item.name,

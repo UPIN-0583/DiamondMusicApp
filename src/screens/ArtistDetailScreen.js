@@ -38,7 +38,7 @@ const ArtistDetailScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const {colors} = useTheme();
-  const {setTrackList, setCurrentTrackIndex} = usePlayerStore();
+  const {playFromQueue} = usePlayerStore();
 
   const dispatch = useDispatch();
   const {token, likedArtists, likedSongs} = useSelector(state => state.auth);
@@ -99,22 +99,13 @@ const ArtistDetailScreen = () => {
   }, [artist]);
 
   const handlePlayTrack = async index => {
-    setTrackList(artistSongs);
-    setCurrentTrackIndex(index);
-    await TrackPlayer.reset();
-    await TrackPlayer.add(artistSongs);
-    await TrackPlayer.skip(index);
-    await TrackPlayer.play();
+    await playFromQueue(artistSongs, index);
     navigation.navigate('Player');
   };
 
   const handlePlayAll = async () => {
     if (artistSongs.length === 0) return;
-    setTrackList(artistSongs);
-    await TrackPlayer.reset();
-    await TrackPlayer.add(artistSongs);
-    await TrackPlayer.skip(0);
-    await TrackPlayer.play();
+    await playFromQueue(artistSongs, 0);
     navigation.navigate('Player');
   };
 

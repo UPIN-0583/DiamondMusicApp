@@ -9,7 +9,7 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
+
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
@@ -35,7 +35,7 @@ const FavouritesScreen = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const {colors} = useTheme();
-  const {setTrackList, setCurrentTrackIndex} = usePlayerStore();
+  const {playFromQueue} = usePlayerStore();
   const {token, likedSongs, likedArtists} = useSelector(state => state.auth);
   const {userPlaylists} = useSelector(state => state.music);
 
@@ -89,12 +89,7 @@ const FavouritesScreen = () => {
 
   const handlePlayTrack = async index => {
     const songsToPlay = searchQuery ? filteredSongs : formattedSongs;
-    setTrackList(songsToPlay);
-    setCurrentTrackIndex(index);
-    await TrackPlayer.reset();
-    await TrackPlayer.add(songsToPlay);
-    await TrackPlayer.skip(index);
-    await TrackPlayer.play();
+    await playFromQueue(songsToPlay, index);
     navigation.getParent()?.navigate('Player');
   };
 
@@ -178,9 +173,7 @@ const FavouritesScreen = () => {
   );
 
   return (
-    <SafeAreaView
-      style={[styles.container, {backgroundColor: colors.background}]}
-      edges={['top']}>
+    <View style={[styles.container, {backgroundColor: colors.background}]}>
       {/* Header */}
       <View style={[styles.header, {borderBottomColor: colors.border}]}>
         <Text style={[styles.headerTitle, {color: colors.text}]}>
@@ -323,13 +316,13 @@ const FavouritesScreen = () => {
         playlists={userPlaylists}
         onSelect={handleSelectPlaylist}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {flex: 1, backgroundColor: '#fff'},
-  header: {paddingHorizontal: 20, paddingTop: 20, paddingBottom: 10},
+  header: {paddingHorizontal: 20, paddingVertical: 15},
   headerTitle: {fontSize: 24, fontWeight: 'bold', color: '#222'},
 
   // Tab Buttons

@@ -12,7 +12,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import LinearGradient from 'react-native-linear-gradient';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
-import {logout} from '../redux/slices/authSlice';
+import {logout, clearCredentials} from '../redux/slices/authSlice';
 import {getUserStats} from '../services/api';
 import {usePlayerStore} from '../store/usePlayerStore';
 import {useTheme} from '../themes/ThemeContext';
@@ -58,6 +58,9 @@ const AccountScreen = () => {
         onPress: async () => {
           // Reset player state central
           await resetPlayer();
+
+          // Clear stored credentials from AsyncStorage
+          await clearCredentials();
 
           // Logout
           dispatch(logout());

@@ -279,7 +279,7 @@ const HomeScreen = ({navigation}) => {
           <TouchableOpacity
             style={styles.aiButton}
             onPress={() => navigation.navigate('AIChat')}>
-            <Icon name="robot-happy" size={22} color="#fff" />
+            <Icon name="chat-processing-outline" size={22} color="#fff" />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.filterButton}

@@ -15,7 +15,7 @@ import {
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useDispatch, useSelector} from 'react-redux';
-import {loginUser} from '../redux/slices/authSlice';
+import {loginUser, saveCredentials} from '../redux/slices/authSlice';
 import {useTheme} from '../themes/ThemeContext';
 
 const LoginScreen = ({navigation}) => {
@@ -35,6 +35,11 @@ const LoginScreen = ({navigation}) => {
 
     const resultAction = await dispatch(loginUser({email, password}));
     if (loginUser.fulfilled.match(resultAction)) {
+      // Save credentials to AsyncStorage for persistent login
+      await saveCredentials(
+        resultAction.payload.token,
+        resultAction.payload.user,
+      );
       Alert.alert('Thành công', 'Đăng nhập thành công!');
       navigation.replace('Main');
     } else {

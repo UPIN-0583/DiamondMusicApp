@@ -1,4 +1,5 @@
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   login,
   register,
@@ -9,6 +10,47 @@ import {
   followArtist,
   unfollowArtist,
 } from '../../services/api';
+
+// AsyncStorage keys
+const AUTH_TOKEN_KEY = '@auth_token';
+const AUTH_USER_KEY = '@auth_user';
+
+// Helper functions for AsyncStorage
+export const saveCredentials = async (token, user) => {
+  try {
+    await AsyncStorage.setItem(AUTH_TOKEN_KEY, token);
+    await AsyncStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
+  } catch (error) {
+    console.error('Error saving credentials:', error);
+  }
+};
+
+export const clearCredentials = async () => {
+  try {
+    await AsyncStorage.multiRemove([AUTH_TOKEN_KEY, AUTH_USER_KEY]);
+  } catch (error) {
+    console.error('Error clearing credentials:', error);
+  }
+};
+
+// Thunk to load stored credentials on app startup
+export const loadStoredCredentials = createAsyncThunk(
+  'auth/loadStoredCredentials',
+  async (_, {rejectWithValue}) => {
+    try {
+      const token = await AsyncStorage.getItem(AUTH_TOKEN_KEY);
+      const userJson = await AsyncStorage.getItem(AUTH_USER_KEY);
+
+      if (token && userJson) {
+        const user = JSON.parse(userJson);
+        return {token, user};
+      }
+      return null;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  },
+);
 
 // Async Thunks
 export const loginUser = createAsyncThunk(
@@ -209,6 +251,15 @@ const authSlice = createSlice({
             a.artist_id !== artistId &&
             a.artist_id?.toString() !== artistId.toString(),
         );
+      }
+    });
+
+    // Load stored credentials
+    builder.addCase(loadStoredCredentials.fulfilled, (state, action) => {
+      if (action.payload) {
+        state.token = action.payload.token;
+        state.user = action.payload.user;
+        state.isAuthenticated = true;
       }
     });
   },
